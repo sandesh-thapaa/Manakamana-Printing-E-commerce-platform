@@ -1,5 +1,7 @@
 "use client";
 
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 import { useState } from "react";
 
 export default function ContactPage() {
@@ -26,6 +28,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <Navbar/>
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         {/* Header */}
         <div className="mb-10 text-center lg:text-left flex flex-col items-center">
@@ -230,6 +233,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }
