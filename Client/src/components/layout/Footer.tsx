@@ -28,6 +28,13 @@ const socialLinks = [
     },
 ]
 
+const usefulLinks = [
+    { label: "Our Services", href: "/services" },
+    { label: "Contact Us", href: "/contact" },
+    { label: "Terms & Conditions", href: "/terms" },
+];
+
+
 export default function Footer() {
     const [email, setEmail] = useState("");
 
@@ -37,7 +44,7 @@ export default function Footer() {
                 {/* Brand */}
                 <div>
                     <div className="flex items-center gap-2.5 mb-4">
-                        <Image src={'/logo.jpeg'} alt="this is logo" width={52} height={52} />
+                        <Image src={'/main-logo.png'} alt="this is logo" width={52} height={52} />
                         <div>
                             <div className="text-white text-[0.9rem] font-extrabold tracking-[0.05em]">NEW MANAKAMANA</div>
                             <div className="text-[color:var(--text-muted)] text-[0.6rem] tracking-[0.15em] uppercase">Printers</div>
@@ -51,8 +58,8 @@ export default function Footer() {
                 {/* Useful Links */}
                 <div>
                     <p className="footer-heading">Useful Links</p>
-                    {["About Us", "Our Services", "Portfolio", "Contact Us", "Terms & Conditions"].map((item) => (
-                        <a key={item} href="#" className="footer-link">› {item}</a>
+                    {usefulLinks.map((item, idx) => (
+                        <Link key={idx} href={item.href} className="footer-link">› {item.label}</Link>
                     ))}
                 </div>
 

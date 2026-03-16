@@ -33,10 +33,9 @@ export interface Order {
 export interface Service {
   id: string;
   name: string;
-  description: string;
   minimumQuantity: number;
-  icon: string;
   imageUrl?: string;
+  image?: string;
 }
 
 export interface Template {
@@ -45,6 +44,7 @@ export interface Template {
   category: string;
   previewUrl?: string;
   downloadUrl?: string;
+  image?: string;
 }
 
 export interface DashboardStats {

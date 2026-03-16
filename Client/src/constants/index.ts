@@ -1,48 +1,38 @@
 import { Service, Template, Order } from "@/types";
 
 export const SERVICES: Service[] = [
+
     {
         id: "visiting-cards",
         name: "Visiting Cards",
-        description: "Premium quality business cards with crisp printing and a range of finishes to make a lasting impression.",
         minimumQuantity: 100,
-        icon: "🪪",
+        image: "/images/Modern Business Card 01.avif",
     },
     {
         id: "pamphlets",
         name: "Pamphlets",
-        description: "Vibrant, eye-catching pamphlets for promotions, events, and campaigns printed on quality paper.",
         minimumQuantity: 200,
-        icon: "📄",
+        image: "/images/Pamphlets.avif",
     },
     {
         id: "letterheads",
         name: "Letterheads",
-        description: "Professional letterheads that elevate your brand with crisp logos and consistent typography.",
         minimumQuantity: 100,
-        icon: "📋",
+        image: "/images/Corporate Letterhead 01.avif",
     },
     {
         id: "id-cards",
         name: "ID Cards",
-        description: "Durable ID cards for employees, events, and institutions with lamination options available.",
         minimumQuantity: 50,
-        icon: "🎫",
-    },
-    {
-        id: "garment-tags",
-        name: "Garment Tags",
-        description: "Custom garment tags and labels for clothing brands with various size and material options.",
-        minimumQuantity: 500,
-        icon: "🏷️",
+        image: "/images/Employee ID Card.avif",
     },
     {
         id: "envelopes",
         name: "Envelopes",
-        description: "Custom-printed envelopes for corporate correspondence, invitations, and marketing mailers.",
         minimumQuantity: 100,
-        icon: "✉️",
+        image: "/images/Standard Envelope.avif",
     },
+
 ];
 
 export const TEMPLATE_CATEGORIES = [
@@ -54,17 +44,54 @@ export const TEMPLATE_CATEGORIES = [
 ];
 
 export const TEMPLATES: Template[] = [
-    { id: "t1", name: "Modern Business Card 01", category: "Visiting Cards" },
-    { id: "t2", name: "Modern Business Card 02", category: "Visiting Cards" },
-    { id: "t3", name: "Classic Business Card", category: "Visiting Cards" },
-    { id: "t4", name: "Corporate Letterhead 01", category: "Letterheads" },
-    { id: "t5", name: "Elegant Letterhead", category: "Letterheads" },
-    { id: "t6", name: "Standard Envelope", category: "Envelopes" },
-    { id: "t7", name: "Business Envelope", category: "Envelopes" },
-    { id: "t8", name: "Employee ID Card", category: "ID Cards" },
-    { id: "t9", name: "Event ID Card", category: "ID Cards" },
-    { id: "t10", name: "Clothing Brand Tag", category: "Garment Tags" },
-    { id: "t11", name: "Premium Garment Label", category: "Garment Tags" },
+    {
+        id: "t1",
+        name: "Modern Business Card 01",
+        category: "Visiting Cards",
+        image: "/images/Modern Business Card 01.avif",
+    },
+    {
+        id: "t2",
+        name: "Modern Business Card 02",
+        category: "Visiting Cards",
+        image: "/images/Modern Business Card 02.avif",
+    },
+    {
+        id: "t3",
+        name: "Classic Business Card",
+        category: "Visiting Cards",
+        image: "/images/Classic Business Card.avif",
+    },
+    {
+        id: "t4",
+        name: "Corporate Letterhead 01",
+        category: "Letterheads",
+        image: "/images/Corporate Letterhead 01.avif",
+    },
+    {
+        id: "t5",
+        name: "Standard Envelope",
+        category: "Envelopes",
+        image: "/images/Standard Envelope.avif",
+    },
+    {
+        id: "t6",
+        name: "Business Envelope",
+        category: "Envelopes",
+        image: "/images/Business Envelope.avif",
+    },
+    {
+        id: "t7",
+        name: "Employee ID Card",
+        category: "ID Cards",
+        image: "/images/Employee ID Card.avif",
+    },
+    {
+        id: "t8",
+        name: "Event ID Card",
+        category: "ID Cards",
+        image: "/images/Event ID Card.avif",
+    }
 ];
 
 export const PAPER_TYPES = [
