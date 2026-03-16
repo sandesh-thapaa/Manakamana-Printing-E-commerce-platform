@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SERVICES } from "@/constants";
+import Image from "next/image";
 
 export default function ServicesPage() {
     return (
@@ -18,8 +19,12 @@ export default function ServicesPage() {
                 {SERVICES.map((service) => (
                     <div key={service.id} className="card cursor-pointer">
                         {/* Preview image / icon area */}
-                        <div className="bg-gradient-to-br from-[#f1f5f9] to-[#e2e8f0] h-[160px] flex items-center justify-center text-[3.5rem] relative">
-                            {service.icon}
+                        <div className="h-[160px] relative overflow-hidden">
+                            {service.image ? (
+                                <Image src={service.image} alt={service.name} fill className="object-cover" />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-[#f1f5f9] to-[#e2e8f0] flex items-center justify-center text-[3.5rem]">📄</div>
+                            )}
                             <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-mid)] text-white rounded-[50px] px-2.5 py-[3px] text-[0.6rem] font-bold tracking-[0.06em]">
                                 B2B
                             </span>
@@ -27,7 +32,6 @@ export default function ServicesPage() {
 
                         <div className="p-5">
                             <h3 className="font-bold text-base mb-1.5">{service.name}</h3>
-                            <p className="text-[0.8rem] text-[#64748b] leading-[1.6] mb-3.5">{service.description}</p>
 
                             <div className="flex items-center justify-between mb-4">
                                 <div>

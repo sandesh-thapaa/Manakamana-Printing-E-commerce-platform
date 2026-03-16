@@ -70,6 +70,7 @@ Please review this template for printing approval.`;
 export const buildCustomDesignMessage = (data: {
     clientId: string;
     designType: string;
+    fileName?: string;
 }) => {
     return `Hello Admin,
 
@@ -78,7 +79,7 @@ Client wants to submit a custom design.
 Client ID: ${data.clientId}
 Design Type: ${data.designType}
 
-Design file will be shared via WhatsApp.
+Design file: ${data.fileName ? data.fileName : "Attached in WhatsApp chat"}.
 
 Please review and generate a Design ID.`;
 };

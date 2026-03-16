@@ -97,7 +97,7 @@ export default function RegisterPage() {
                         <div>
                             <div className="mb-8">
                                 <div className="flex items-center gap-2.5 mb-6">
-                                <Image src={'/logo.jpeg'} alt="this is logo" width={52} height={52}/>
+                                <Image src={'/main-logo.png'} alt="this is logo" className="cursor-pointer" width={52} height={52}/>
                                     <div>
                                       <div className="text-white text-[0.9rem] font-extrabold tracking-[0.05em]">NEW MANAKAMANA</div>
                                         <div className="text-white/[0.65] text-[0.6rem] tracking-[0.15em]">PRINTERS</div>
