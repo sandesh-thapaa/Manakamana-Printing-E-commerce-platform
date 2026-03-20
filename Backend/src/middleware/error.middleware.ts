@@ -11,16 +11,15 @@ export const globalErrorHandler = (
 
   // Log error for debugging
   if (err.statusCode === 500) {
-    console.error('ERROR 💥', err);
+    console.error('ERROR ', err);
   } else {
      // Reduced logging (or no logging) for operational errors to avoid clutter/confusion
-     // console.warn(`Error ${err.statusCode}: ${err.message}`);
+     console.warn(`Error ${err.statusCode}: ${err.message}`);
   }
 
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
-    // Stack trace only in development
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
 };

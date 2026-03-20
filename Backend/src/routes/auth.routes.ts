@@ -1,22 +1,11 @@
 import { Router } from "express";
-import { validate } from "../middleware/validate.middleware";
-
-import {
-  loginUser,
-  logoutUser,
-  getCurrentUser
-} from "../controller/auth.controller";
-
-import { loginSchema } from "../validators/auth.validators";
-
+import * as authController from "../controller/auth.controller";
 import { protect } from "../middleware/auth.middleware";
 
 const router = Router();
 
-router.post("/login", validate(loginSchema), loginUser);
-
-router.post("/logout", protect, logoutUser);
-
-router.get("/me", protect, getCurrentUser);
+router.post("/login", authController.loginClient);
+router.post("/logout", authController.logout);
+router.get("/me", protect, authController.getMe);
 
 export default router;

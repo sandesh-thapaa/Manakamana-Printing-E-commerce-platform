@@ -9,11 +9,6 @@ generator client {
 
 // ENUMS
 
-enum Role {
-  ADMIN
-  CLIENT
-}
-
 enum RegistrationStatus {
   PENDING
   APPROVED
@@ -35,49 +30,53 @@ enum DesignStatus {
   REJECTED
 }
 
-// USER AUTH SYSTEM
+// ADMIN USERS
 
-model User {
-  id       String  @id @default(uuid())
-  clientId String? @unique
-  password String
-  role     Role
+model AdminUser {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  password String    // PLAIN TEXT STORED AS REQUESTED
+  role     String    @default("ADMIN")
 
-  client Client?
+  reviewedRegistrationRequests RegistrationRequest[] @relation("ApprovedBy")
+  rejectedRegistrationRequests RegistrationRequest[] @relation("RejectedBy")
+  credentialsSentRequests      RegistrationRequest[] @relation("CredentialsSentBy")
 
-  registrationRequest RegistrationRequest?  @relation("UserRegistration")
-  reviewedRequests    RegistrationRequest[] @relation("ReviewerRegistration")
-  reviewedDesigns     Design[]              @relation("DesignReviewer")
-  systemLogs          SystemLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@map("users")
+  @@map("admin_users")
 }
 
 // REGISTRATION REQUEST (CLIENT ONBOARDING)
 
 model RegistrationRequest {
-  id            String  @id @default(uuid())
-  companyName   String
-  contactPerson String
-  email         String
-  phone         String?
-  address       String?
-  message       String?
+  id                      String  @id @default(uuid())
+  business_name           String
+  owner_name              String
+  email                   String
+  phone_number            String @unique
+  business_address        String?
+  notes                   String?
 
   status RegistrationStatus @default(PENDING)
+  rejection_reason String?
 
-  reviewedById String?
-  reviewedBy   User?   @relation("ReviewerRegistration", fields: [reviewedById], references: [id])
+  approved_by_id String?
+  approved_by   AdminUser? @relation("ApprovedBy", fields: [approved_by_id], references: [id])
+  approved_at    DateTime?
 
-  userId String? @unique
-  user   User?   @relation("UserRegistration", fields: [userId], references: [id])
+  rejected_by_id String?
+  rejected_by   AdminUser? @relation("RejectedBy", fields: [rejected_by_id], references: [id])
+  rejected_at    DateTime?
 
-  createdAt  DateTime  @default(now())
-  reviewedAt DateTime?
+  credentials_sent_at DateTime?
+  credentials_sent_by_id String?
+  credentials_sent_by AdminUser? @relation("CredentialsSentBy", fields: [credentials_sent_by_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@map("registration_requests")
@@ -86,19 +85,23 @@ model RegistrationRequest {
 // CLIENT PROFILE
 
 model Client {
-  id     String @id @default(uuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                      String  @id @default(uuid())
+  client_code             String? @unique // Immutable internal ID
+  phone_number            String @unique // Login ID
+  password                String  // PLAIN TEXT STORED AS REQUESTED
 
-  companyName String
-  email       String
-  phone       String?
-  address     String?
+  business_name String
+  owner_name    String
+  email         String
+  address       String?
+
+  status String @default("active") // active | inactive
 
   orders Order[]
+  Design Design[]
 
   createdAt DateTime @default(now())
-  Design    Design[]
+  updatedAt DateTime @updatedAt
 
   @@map("clients")
 }
@@ -133,7 +136,7 @@ model Template {
   @@map("templates")
 }
 
-// CUSTOM DESIGN APPROVAL
+// CUSTOM DESIGN APPROWAL
 
 model Design {
   id         String @id @default(uuid())
@@ -146,8 +149,6 @@ model Design {
 
   status DesignStatus @default(PENDING)
 
-  reviewedById String?
-  reviewedBy   User?   @relation("DesignReviewer", fields: [reviewedById], references: [id])
 
   createdAt  DateTime  @default(now())
   reviewedAt DateTime?
@@ -182,19 +183,4 @@ model Order {
 
   @@index([status])
   @@map("orders")
-}
-
-// ADMIN DASHBOARD METRICS (OPTIONAL FUTURE)
-
-model SystemLog {
-  id       String @id @default(uuid())
-  action   String
-  metadata Json?
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  @@map("system_logs")
 }

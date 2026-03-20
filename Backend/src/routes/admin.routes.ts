@@ -1,33 +1,23 @@
 import { Router } from "express";
-import {
-  getRegistrationRequests,
-  getRegistrationRequestById,
-  approveRegistrationRequest,
-  rejectRegistrationRequest,
-} from "../controller/admin.controller";
+import * as adminController from "../controller/admin.controller";
+import * as authController from "../controller/auth.controller";
 import { protect, restrictTo } from "../middleware/auth.middleware";
 
 const router = Router();
 
-// Protect all routes after this middleware
-router.use(protect);
-router.use(restrictTo("ADMIN"));
+// ADMIN AUTH
+router.post("/auth/login", authController.loginAdmin);
+router.get("/auth/me", protect, restrictTo("ADMIN", "SUPER_ADMIN"), authController.getMe);
 
-router.get("/registration-requests", getRegistrationRequests);
+// REGISTRATION REQUESTS
+router.get("/registration-requests", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.getRegistrationRequests);
+router.get("/registration-requests/:request_id", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.getRegistrationRequestById);
+router.post("/registration-requests/:request_id/approve", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.approveRegistrationRequest);
+router.patch("/registration-requests/:request_id/reject", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.rejectRegistrationRequest);
+router.patch("/registration-requests/:request_id/credentials-sent", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.markCredentialsSent);
 
-router.get(
-  "/registration-requests/:request_id",
-  getRegistrationRequestById
-);
-
-router.post(
-  "/registration-requests/:request_id/approve",
-  approveRegistrationRequest
-);
-
-router.patch(
-  "/registration-requests/:request_id/reject",
-  rejectRegistrationRequest
-);
+// CLIENTS
+router.get("/clients", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.getClients);
+router.get("/clients/:id", protect, restrictTo("ADMIN", "SUPER_ADMIN"), adminController.getClientById);
 
 export default router;

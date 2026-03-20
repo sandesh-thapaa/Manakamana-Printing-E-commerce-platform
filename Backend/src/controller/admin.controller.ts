@@ -8,7 +8,11 @@ export const getRegistrationRequests = async (
   next: NextFunction
 ) => {
   try {
-    const result = await adminService.getRegistrationRequestsService();
+    const { status, search } = req.query;
+    const result = await adminService.getRegistrationRequestsService({ 
+      status: status as string, 
+      search: search as string 
+    });
     res.status(200).json(result);
   } catch (error: any) {
     next(error);
@@ -35,10 +39,7 @@ export const getRegistrationRequestById = async (
 ) => {
   try {
     const { request_id } = req.params;
-
-    const result =
-      await adminService.getRegistrationRequestByIdService(request_id as string);
-
+    const result = await adminService.getRegistrationRequestByIdService(request_id as string);
     res.status(200).json(result);
   } catch (error: any) {
     next(error);
@@ -46,16 +47,15 @@ export const getRegistrationRequestById = async (
 };
 
 export const approveRegistrationRequest = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { request_id } = req.params;
+    const admin_id = req.user.id;
 
-    const result =
-      await adminService.approveRegistrationRequestService(request_id as string);
-
+    const result = await adminService.approveRegistrationRequestService(request_id as string, admin_id);
     res.status(200).json(result);
   } catch (error: any) {
     next(error);
@@ -63,16 +63,51 @@ export const approveRegistrationRequest = async (
 };
 
 export const rejectRegistrationRequest = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { request_id } = req.params;
+    const admin_id = req.user.id;
+    const { reason } = req.body;
 
-    const result =
-      await adminService.rejectRegistrationRequestService(request_id as string);
+    const result = await adminService.rejectRegistrationRequestService(request_id as string, admin_id, reason);
+    res.status(200).json(result);
+  } catch (error: any) {
+    next(error);
+  }
+};
 
+export const markCredentialsSent = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { request_id } = req.params;
+    const admin_id = req.user.id;
+
+    const result = await adminService.markCredentialsSentService(request_id as string, admin_id);
+    res.status(200).json(result);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const getClients = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await adminService.getClientsService();
+    res.status(200).json(result);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const getClientById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const result = await adminService.getClientByIdService(id as string);
     res.status(200).json(result);
   } catch (error: any) {
     next(error);
