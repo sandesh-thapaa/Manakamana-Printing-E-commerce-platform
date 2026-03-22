@@ -5,8 +5,8 @@ import {
   getAdminDesignsService,
   getAdminDesignByIdService,
   archiveDesignService
-} from "../services/approvedDesignService";
-import { verifyDesignSchema, adminApprovedDesignQuerySchema, archiveDesignSchema } from "../validators/approvedDesignValidator";
+} from "../services/approved-design.service";
+import { verifyDesignSchema, adminApprovedDesignQuerySchema, archiveDesignSchema } from "../validators/approved-design.validator";
 
 // CLIENT APIs
 export const getMyDesignById = async (req: Request, res: Response) => {

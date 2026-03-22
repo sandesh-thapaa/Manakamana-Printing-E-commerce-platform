@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protect, restrictTo } from "../middleware/auth.middleware";
-import { getMyDesignById, verifyDesignId } from "../controller/approvedDesignController";
+import { getMyDesignById, verifyDesignId } from "../controller/approved-design.controller";
 
 const router = Router();
 

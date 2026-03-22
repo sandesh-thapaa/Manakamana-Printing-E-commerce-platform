@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { getCategoriesService, getTemplatesService, getTemplateByIdService } from "../services/templateService";
-import { getTemplatesQuerySchema } from "../validators/templateValidator";
+import { getCategoriesService, getTemplatesService, getTemplateByIdService } from "../services/template.service";
+import { getTemplatesQuerySchema } from "../validators/template.validator";
 
 export const getTemplateCategories = async (req: Request, res: Response) => {
   try {

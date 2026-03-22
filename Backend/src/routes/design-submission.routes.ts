@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { protect, restrictTo } from "../middleware/auth.middleware";
-import { createDesignSubmission, getMySubmissions, getMySubmissionById } from "../controller/designSubmissionController";
+import { createDesignSubmission, getMySubmissions, getMySubmissionById } from "../controller/design-submission.controller";
 
 const router = Router();
 

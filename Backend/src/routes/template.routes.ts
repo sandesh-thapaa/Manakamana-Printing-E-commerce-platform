@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getTemplateCategories, getTemplates, getTemplateById } from "../controller/templateController";
+import { getTemplateCategories, getTemplates, getTemplateById } from "../controller/template.controller";
 import { protect, restrictTo } from "../middleware/auth.middleware";
 
 const router = Router();

@@ -65,7 +65,10 @@ export const createRegistrationRequestService = async (data: {
 
   return {
     message: "Registration request submitted successfully",
-    data: newRequest,
+    data: {
+      id:newRequest.id,
+      status:newRequest.status,
+    },
   };
 };
 
@@ -195,4 +198,4 @@ export const getClientByIdService = async (id: string) => {
   });
   if (!data) throw new AppError("Client not found", 404);
   return { message: "Client fetched", data };
-};
+};

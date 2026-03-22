@@ -6,9 +6,9 @@ import authRoutes from "./routes/auth.routes";
 import adminRoutes from "./routes/admin.routes";
 import publicRoutes from "./routes/public.routes";
 import userRoutes from "./routes/user.routes";
-import templateRoutes from "./routes/templateRoutes";
-import designSubmissionRoutes from "./routes/designSubmissionRoutes";
-import designRoutes from "./routes/designRoutes";
+import templateRoutes from "./routes/template.routes";
+import designSubmissionRoutes from "./routes/design-submission.routes";
+import designRoutes from "./routes/design.routes";
 import { globalErrorHandler } from "./middleware/error.middleware";
 
 const app = express();

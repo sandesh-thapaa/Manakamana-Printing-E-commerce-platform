@@ -1,13 +1,134 @@
 {
   "info": {
     "name": "Manakamana Printing Design APIs",
-    "description": "Postman Collection for Design Submission and Approval Workflow",
+    "description": "Postman Collection for all Client and Admin APIs in the Manakamana Printing E-commerce platform",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Client Auth",
+          "item": [
+            {
+              "name": "Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"client@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+              }
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+              }
+            },
+            {
+              "name": "Get Me",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin Auth",
+          "item": [
+            {
+              "name": "Admin Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@manakamanaprinting.com\",\n  \"password\": \"adminpass123\"\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/admin/auth/login", "host": ["{{baseUrl}}"], "path": ["admin", "auth", "login"] }
+              }
+            },
+            {
+              "name": "Admin Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/auth/logout", "host": ["{{baseUrl}}"], "path": ["admin", "auth", "logout"] }
+              }
+            },
+            {
+              "name": "Admin Get Me",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/auth/me", "host": ["{{baseUrl}}"], "path": ["admin", "auth", "me"] }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Register Client Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_name\": \"My Prints Co.\",\n  \"business_address\": \"Kathmandu, Nepal\",\n  \"owner_name\": \"John Doe\",\n  \"phone_number\": \"9800000000\",\n  \"email\": \"info@myprints.com\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/register-request", "host": ["{{baseUrl}}"], "path": ["register-request"] }
+          }
+        }
+      ]
+    },
+    {
       "name": "Client",
       "item": [
+        {
+          "name": "User Profile",
+          "item": [
+            {
+              "name": "Get Profile",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/user/profile", "host": ["{{baseUrl}}"], "path": ["user", "profile"] }
+              }
+            },
+            {
+              "name": "Update Profile",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"business_name\": \"Jane Doe Prints\"\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/user/profile", "host": ["{{baseUrl}}"], "path": ["user", "profile"] }
+              }
+            }
+          ]
+        },
         {
           "name": "Templates",
           "item": [
@@ -32,7 +153,12 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{baseUrl}}/templates/:templateId", "host": ["{{baseUrl}}"], "path": ["templates", ":templateId"], "variable": [{"key": "templateId", "value": "uuid"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/templates/:templateId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["templates", ":templateId"],
+                  "variable": [{ "key": "templateId", "value": "uuid" }]
+                }
               }
             }
           ]
@@ -69,7 +195,12 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{baseUrl}}/design-submissions/my/:submissionId", "host": ["{{baseUrl}}"], "path": ["design-submissions", "my", ":submissionId"], "variable": [{"key": "submissionId", "value": "uuid"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/design-submissions/my/:submissionId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["design-submissions", "my", ":submissionId"],
+                  "variable": [{ "key": "submissionId", "value": "uuid" }]
+                }
               }
             }
           ]
@@ -82,14 +213,21 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{baseUrl}}/my-designs/:designId", "host": ["{{baseUrl}}"], "path": ["my-designs", ":designId"], "variable": [{"key": "designId", "value": "DSN-xxx"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/my-designs/:designId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["my-designs", ":designId"],
+                  "variable": [{ "key": "designId", "value": "DSN-xxx" }]
+                }
               }
             },
             {
               "name": "Verify Design ID",
               "request": {
                 "method": "POST",
-                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"designId\": \"DSN-2026-000001\"\n}"
@@ -104,6 +242,111 @@
     {
       "name": "Admin",
       "item": [
+        {
+          "name": "Registration Requests",
+          "item": [
+            {
+              "name": "Get Registration Requests",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/registration-requests", "host": ["{{baseUrl}}"], "path": ["admin", "registration-requests"] }
+              }
+            },
+            {
+              "name": "Get Request By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/registration-requests/:request_id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "registration-requests", ":request_id"],
+                  "variable": [{ "key": "request_id", "value": "uuid" }]
+                }
+              }
+            },
+            {
+              "name": "Approve Request",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/registration-requests/:request_id/approve",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "registration-requests", ":request_id", "approve"],
+                  "variable": [{ "key": "request_id", "value": "uuid" }]
+                }
+              }
+            },
+            {
+              "name": "Reject Request",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Invalid documents\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/registration-requests/:request_id/reject",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "registration-requests", ":request_id", "reject"],
+                  "variable": [{ "key": "request_id", "value": "uuid" }]
+                }
+              }
+            },
+            {
+              "name": "Mark Credentials Sent",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/registration-requests/:request_id/credentials-sent",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "registration-requests", ":request_id", "credentials-sent"],
+                  "variable": [{ "key": "request_id", "value": "uuid" }]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clients",
+          "item": [
+            {
+              "name": "Get Clients",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/admin/clients", "host": ["{{baseUrl}}"], "path": ["admin", "clients"] }
+              }
+            },
+            {
+              "name": "Get Client Detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/clients/:id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "clients", ":id"],
+                  "variable": [{ "key": "id", "value": "uuid" }]
+                }
+              }
+            }
+          ]
+        },
         {
           "name": "Design Submissions",
           "item": [
@@ -120,31 +363,50 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{baseUrl}}/admin/design-submissions/:submissionId", "host": ["{{baseUrl}}"], "path": ["admin", "design-submissions", ":submissionId"], "variable": [{"key": "submissionId", "value": "uuid"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/admin/design-submissions/:submissionId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "design-submissions", ":submissionId"],
+                  "variable": [{ "key": "submissionId", "value": "uuid" }]
+                }
               }
             },
             {
               "name": "Approve Submission",
               "request": {
                 "method": "POST",
-                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"previewUrl\": \"https://example.com/preview.jpg\",\n  \"note\": \"Approved\"\n}"
                 },
-                "url": { "raw": "{{baseUrl}}/admin/design-submissions/:submissionId/approve", "host": ["{{baseUrl}}"], "path": ["admin", "design-submissions", ":submissionId", "approve"], "variable": [{"key": "submissionId", "value": "uuid"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/admin/design-submissions/:submissionId/approve",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "design-submissions", ":submissionId", "approve"],
+                  "variable": [{ "key": "submissionId", "value": "uuid" }]
+                }
               }
             },
             {
               "name": "Reject Submission",
               "request": {
                 "method": "PATCH",
-                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"feedbackMessage\": \"Margin too small\"\n}"
                 },
-                "url": { "raw": "{{baseUrl}}/admin/design-submissions/:submissionId/reject", "host": ["{{baseUrl}}"], "path": ["admin", "design-submissions", ":submissionId", "reject"], "variable": [{"key": "submissionId", "value": "uuid"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/admin/design-submissions/:submissionId/reject",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "design-submissions", ":submissionId", "reject"],
+                  "variable": [{ "key": "submissionId", "value": "uuid" }]
+                }
               }
             }
           ]
@@ -165,19 +427,31 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "url": { "raw": "{{baseUrl}}/admin/designs/:designId", "host": ["{{baseUrl}}"], "path": ["admin", "designs", ":designId"], "variable": [{"key": "designId", "value": "DSN-xxx"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/admin/designs/:designId",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "designs", ":designId"],
+                  "variable": [{ "key": "designId", "value": "DSN-xxx" }]
+                }
               }
             },
             {
               "name": "Archive Design",
               "request": {
                 "method": "PATCH",
-                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"reason\": \"Obsolete\"\n}"
                 },
-                "url": { "raw": "{{baseUrl}}/admin/designs/:designId/archive", "host": ["{{baseUrl}}"], "path": ["admin", "designs", ":designId", "archive"], "variable": [{"key": "designId", "value": "DSN-xxx"}] }
+                "url": {
+                  "raw": "{{baseUrl}}/admin/designs/:designId/archive",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "designs", ":designId", "archive"],
+                  "variable": [{ "key": "designId", "value": "DSN-xxx" }]
+                }
               }
             }
           ]

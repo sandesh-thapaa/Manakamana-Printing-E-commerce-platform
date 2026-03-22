@@ -7,8 +7,8 @@ import {
   getAdminSubmissionByIdService,
   approveSubmissionService,
   rejectSubmissionService
-} from "../services/designSubmissionService";
-import { designSubmissionSchema, designSubmissionQuerySchema, adminDesignSubmissionQuerySchema, adminApproveSubmissionSchema, adminRejectSubmissionSchema } from "../validators/designSubmissionValidator";
+} from "../services/design-submission.service";
+import { designSubmissionSchema, designSubmissionQuerySchema, adminDesignSubmissionQuerySchema, adminApproveSubmissionSchema, adminRejectSubmissionSchema } from "../validators/design-submission.validator";
 import { AppError } from "../utils/apperror";
 
 // POST /api/v1/design-submissions
