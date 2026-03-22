@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { AppError } from "../utils/apperror";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const getRegistrationRequestsService = async () => {
   const data = await prisma.registrationRequest.findMany({
@@ -291,3 +292,55 @@ export const deleteApprovedDesignService = async (design_id: string) => {
     message: "Design record deleted successfully",
   };
 };
+
+export const loginAdminService = async ({
+  client_id,
+  password,
+}: {
+  client_id: string;
+  password: string;
+}) => {
+  if (!client_id || !password) {
+    throw new AppError("Client ID and password required", 400);
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { clientId: client_id },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (user.role !== "ADMIN") {
+    throw new AppError("Access denied. Admin privileges required.", 403);
+  }
+
+  const isValid = await bcrypt.compare(password, user.password);
+
+  if (!isValid) {
+    throw new AppError("Invalid credentials", 401);
+  }
+
+  const token = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "1d" }
+  );
+
+  return {
+    message: "Admin login successful",
+    token,
+    user: {
+      id: user.id,
+      client_id: user.clientId,
+      role: user.role,
+    },
+  };
+};
+
+export const logoutAdminService = async () => {
+  return {
+    message: "Admin logout successful",
+  };
+};

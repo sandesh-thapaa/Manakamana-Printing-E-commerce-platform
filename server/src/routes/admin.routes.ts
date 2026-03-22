@@ -10,15 +10,24 @@ import {
   rejectDesignSubmission,
   getApprovedDesigns,
   getApprovedDesignByIdAdmin,
-  deleteApprovedDesign
+  deleteApprovedDesign,
+  loginAdmin,
+  logoutAdmin
 } from "../controller/admin.controller";
 import { protect, restrictTo } from "../middleware/auth.middleware";
+import { validate } from "../middleware/validate.middleware";
+import { loginSchema } from "../validators/auth.validators";
 
 const router = Router();
+
+// Public Route
+router.post("/login", validate(loginSchema), loginAdmin);
 
 // Protect all routes after this middleware
 router.use(protect);
 router.use(restrictTo("ADMIN"));
+
+router.post("/logout", logoutAdmin);
 
 router.get("/registration-requests", getRegistrationRequests);
 

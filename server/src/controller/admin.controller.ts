@@ -201,3 +201,29 @@ export const deleteApprovedDesign = async (
     next(error);
   }
 };
+
+export const loginAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await adminService.loginAdminService(req.body);
+    res.status(200).json(result);
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const logoutAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await adminService.logoutAdminService();
+    res.status(200).json(result);
+  } catch (error: any) {
+    next(error);
+  }
+};

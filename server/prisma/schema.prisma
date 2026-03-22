@@ -200,3 +200,18 @@ model SystemLog {
 
   @@map("system_logs")
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
