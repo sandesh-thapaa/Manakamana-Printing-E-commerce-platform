@@ -21,7 +21,6 @@ export const adminDesignSubmissionQuerySchema = z.object({
 });
 
 export const adminApproveSubmissionSchema = z.object({
-  previewUrl: z.string().optional(), // In a real system, we'd auto-generate this, but spec says it's required if no auto-generation
   note: z.string().max(500).optional(),
 });
 

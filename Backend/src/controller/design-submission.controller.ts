@@ -10,6 +10,7 @@ import {
 } from "../services/design-submission.service";
 import { designSubmissionSchema, designSubmissionQuerySchema, adminDesignSubmissionQuerySchema, adminApproveSubmissionSchema, adminRejectSubmissionSchema } from "../validators/design-submission.validator";
 import { AppError } from "../utils/apperror";
+import { uploadToSupabase } from "../utils/file-upload";
 
 // POST /api/v1/design-submissions
 export const createDesignSubmission = async (req: Request, res: Response, next: any) => {
@@ -28,12 +29,19 @@ export const createDesignSubmission = async (req: Request, res: Response, next: 
       return res.status(400).json({ success: false, message: "Validation failed", errors: validatedBody.error.issues });
     }
 
+    let fileUrl = "";
+    try {
+      fileUrl = await uploadToSupabase(file, "submissions");
+    } catch (uploadError: any) {
+      return res.status(500).json({ success: false, message: "File upload failed", error: uploadError.message });
+    }
+
     const submission = await createDesignSubmissionService({
       clientId,
       templateId: validatedBody.data.templateId,
       title: validatedBody.data.title,
       notes: validatedBody.data.notes,
-      fileUrl: `/uploads/${file.filename}`, // Assuming local storage
+      fileUrl: fileUrl,
       fileType: file.mimetype === "application/pdf" ? "pdf" : (file.mimetype.includes("png") ? "png" : "jpg"),
       fileSize: file.size,
     });
@@ -210,9 +218,9 @@ export const approveSubmission = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Validation failed", errors: validatedBody.error.issues });
     }
 
-    const { previewUrl, note } = validatedBody.data;
+    const { note } = validatedBody.data;
 
-    const result = await approveSubmissionService(submissionId, adminId, previewUrl, note);
+    const result = await approveSubmissionService(submissionId, adminId, note);
 
     res.status(201).json({
       success: true,
@@ -222,7 +230,6 @@ export const approveSubmission = async (req: Request, res: Response) => {
         designId: result.approvedDesign.designCode,
         status: "APPROVED",
         approvedAt: result.approvedDesign.approvedAt,
-        previewUrl: result.approvedDesign.previewUrl,
       },
     });
   } catch (error: any) {

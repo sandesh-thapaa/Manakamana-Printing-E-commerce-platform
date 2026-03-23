@@ -25,7 +25,6 @@ export const getMyDesignById = async (req: Request, res: Response) => {
       data: {
         designId: design.designCode,
         status: design.status,
-        previewUrl: design.previewUrl,
         submissionId: design.submissionId,
         approvedAt: design.approvedAt,
       },
@@ -79,7 +78,6 @@ export const getAdminDesigns = async (req: Request, res: Response) => {
     const items = data.items.map((i: any) => ({
       designId: i.designCode,
       status: i.status,
-      previewUrl: i.previewUrl,
       client: i.client ? { id: i.client.id, name: i.client.business_name } : null,
       submissionId: i.submissionId,
       approvedAt: i.approvedAt,
@@ -113,7 +111,6 @@ export const getAdminDesignById = async (req: Request, res: Response) => {
       data: {
         designId: design.designCode,
         status: design.status,
-        previewUrl: design.previewUrl,
         approvedFileUrl: design.approvedFileUrl,
         submissionId: design.submissionId,
         client: design.client ? { id: design.client.id, name: design.client.business_name, phone: design.client.phone_number } : null,

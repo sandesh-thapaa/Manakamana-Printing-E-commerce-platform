@@ -44,10 +44,6 @@ model AdminUser {
   password String // PLAIN TEXT STORED AS REQUESTED
   role     String @default("ADMIN")
 
-  reviewedRegistrationRequests RegistrationRequest[] @relation("ApprovedBy")
-  rejectedRegistrationRequests RegistrationRequest[] @relation("RejectedBy")
-  credentialsSentRequests      RegistrationRequest[] @relation("CredentialsSentBy")
-
   reviewedSubmissions DesignSubmission[] @relation("ReviewedSubmissions")
   approvedDesigns     ApprovedDesign[]   @relation("ApprovedDesigns")
   archivedDesigns     ApprovedDesign[]   @relation("ArchivedDesigns")
@@ -72,18 +68,6 @@ model RegistrationRequest {
 
   status           RegistrationStatus @default(PENDING)
   rejection_reason String?
-
-  approved_by_id String?
-  approved_by    AdminUser? @relation("ApprovedBy", fields: [approved_by_id], references: [id])
-  approved_at    DateTime?
-
-  rejected_by_id String?
-  rejected_by    AdminUser? @relation("RejectedBy", fields: [rejected_by_id], references: [id])
-  rejected_at    DateTime?
-
-  credentials_sent_at    DateTime?
-  credentials_sent_by_id String?
-  credentials_sent_by    AdminUser? @relation("CredentialsSentBy", fields: [credentials_sent_by_id], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,7 +140,6 @@ model Template {
   category   TemplateCategory @relation(fields: [categoryId], references: [id])
 
   fileUrl    String
-  previewUrl String?
   isActive   Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -209,7 +192,6 @@ model ApprovedDesign {
   submissionId String           @unique
   submission   DesignSubmission @relation(fields: [submissionId], references: [id])
 
-  previewUrl      String?
   approvedFileUrl String
 
   status ApprovedDesignStatus @default(ACTIVE)

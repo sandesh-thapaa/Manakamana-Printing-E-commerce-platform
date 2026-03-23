@@ -79,21 +79,7 @@ export const rejectRegistrationRequest = async (
   }
 };
 
-export const markCredentialsSent = async (
-  req: any,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { request_id } = req.params;
-    const admin_id = req.user.id;
-
-    const result = await adminService.markCredentialsSentService(request_id as string, admin_id);
-    res.status(200).json(result);
-  } catch (error: any) {
-    next(error);
-  }
-};
+// markCredentialsSent controller removed as fields are deleted from schema
 
 export const getClients = async (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -17,7 +17,6 @@ router.get("/registration-requests", protect, restrictTo("ADMIN"), adminControll
 router.get("/registration-requests/:request_id", protect, restrictTo("ADMIN"), adminController.getRegistrationRequestById);
 router.post("/registration-requests/:request_id/approve", protect, restrictTo("ADMIN"), adminController.approveRegistrationRequest);
 router.patch("/registration-requests/:request_id/reject", protect, restrictTo("ADMIN"), adminController.rejectRegistrationRequest);
-router.patch("/registration-requests/:request_id/credentials-sent", protect, restrictTo("ADMIN"), adminController.markCredentialsSent);
 
 // CLIENTS
 router.get("/clients", protect, restrictTo("ADMIN"), adminController.getClients);

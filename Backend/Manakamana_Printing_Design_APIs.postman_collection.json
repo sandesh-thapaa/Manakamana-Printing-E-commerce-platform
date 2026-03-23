@@ -236,6 +236,33 @@
               }
             }
           ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "Create Order",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"orderName\": \"Business Card Printing\",\n  \"serviceId\": \"uuid\",\n  \"quantity\": 100,\n  \"designId\": \"uuid\"\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+              }
+            },
+            {
+              "name": "Get My Orders",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": { "raw": "{{baseUrl}}/orders/my", "host": ["{{baseUrl}}"], "path": ["orders", "my"] }
+              }
+            }
+          ]
         }
       ]
     },
@@ -301,23 +328,6 @@
                   "variable": [{ "key": "request_id", "value": "uuid" }]
                 }
               }
-            },
-            {
-              "name": "Mark Credentials Sent",
-              "request": {
-                "method": "PATCH",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": ""
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/admin/registration-requests/:request_id/credentials-sent",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "registration-requests", ":request_id", "credentials-sent"],
-                  "variable": [{ "key": "request_id", "value": "uuid" }]
-                }
-              }
             }
           ]
         },
@@ -380,7 +390,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"previewUrl\": \"https://example.com/preview.jpg\",\n  \"note\": \"Approved\"\n}"
+                  "raw": "{\n  \"note\": \"Approved\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/admin/design-submissions/:submissionId/approve",
@@ -451,6 +461,65 @@
                   "host": ["{{baseUrl}}"],
                   "path": ["admin", "designs", ":designId", "archive"],
                   "variable": [{ "key": "designId", "value": "DSN-xxx" }]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Template Management",
+          "item": [
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Business Cards\",\n  \"slug\": \"business-cards\"\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/templates/categories", "host": ["{{baseUrl}}"], "path": ["templates", "categories"] }
+              }
+            },
+            {
+              "name": "Create Template",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "file", "type": "file" },
+                    { "key": "title", "value": "Corporate Card", "type": "text" },
+                    { "key": "categoryId", "value": "uuid", "type": "text" }
+                  ]
+                },
+                "url": { "raw": "{{baseUrl}}/templates/", "host": ["{{baseUrl}}"], "path": ["templates", ""] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order Management",
+          "item": [
+            {
+              "name": "Update Order Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"ORDER_PROCESSING\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders/:orderId/status",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["orders", ":orderId", "status"],
+                  "variable": [{ "key": "orderId", "value": "uuid" }]
                 }
               }
             }

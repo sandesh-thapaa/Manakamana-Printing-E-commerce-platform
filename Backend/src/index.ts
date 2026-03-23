@@ -9,6 +9,7 @@ import userRoutes from "./routes/user.routes";
 import templateRoutes from "./routes/template.routes";
 import designSubmissionRoutes from "./routes/design-submission.routes";
 import designRoutes from "./routes/design.routes";
+import orderRoutes from "./routes/order.routes";
 import { globalErrorHandler } from "./middleware/error.middleware";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/templates", templateRoutes);
 app.use("/api/v1/design-submissions", designSubmissionRoutes);
 app.use("/api/v1", designRoutes);
+app.use("/api/v1/orders", orderRoutes);
 
 //health check
 app.get("/",(req:Request,res:Response)=>{

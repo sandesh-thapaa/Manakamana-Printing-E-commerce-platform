@@ -115,7 +115,6 @@ export const getAdminSubmissionByIdService = async (submissionId: string) => {
 export const approveSubmissionService = async (
   submissionId: string,
   adminId: string,
-  previewUrl?: string,
   note?: string
 ) => {
   return await prisma.$transaction(async (tx) => {
@@ -133,7 +132,6 @@ export const approveSubmissionService = async (
         designCode,
         clientId: submission.clientId,
         submissionId: submission.id,
-        previewUrl: previewUrl || submission.fileUrl, // fallback
         approvedFileUrl: submission.fileUrl, // mapping submitted file to approved
         approvedBy_id: adminId,
         status: "ACTIVE",

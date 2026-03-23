@@ -19,7 +19,6 @@ export const verifyDesignIdService = async (designCode: string, clientId: string
       valid: false,
       designId: designCode,
       status: design?.status || null,
-      previewUrl: null,
       belongsToCurrentClient: false,
     };
   }
@@ -28,7 +27,6 @@ export const verifyDesignIdService = async (designCode: string, clientId: string
     valid: true,
     designId: design.designCode,
     status: design.status,
-    previewUrl: design.previewUrl,
     belongsToCurrentClient: design.clientId === clientId,
   };
 };

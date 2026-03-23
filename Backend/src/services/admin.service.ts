@@ -17,11 +17,6 @@ export const getRegistrationRequestsService = async (filters: { status?: string;
   const data = await prisma.registrationRequest.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: {
-      approved_by: { select: { name: true } },
-      rejected_by: { select: { name: true } },
-      credentials_sent_by: { select: { name: true } }
-    }
   });
 
   return {
@@ -75,11 +70,6 @@ export const createRegistrationRequestService = async (data: {
 export const getRegistrationRequestByIdService = async (request_id: string) => {
   const data = await prisma.registrationRequest.findUnique({
     where: { id: request_id },
-    include: {
-      approved_by: { select: { id: true, name: true } },
-      rejected_by: { select: { id: true, name: true } },
-      credentials_sent_by: { select: { id: true, name: true } }
-    }
   });
 
   if (!data) throw new AppError("Request not found", 404);
@@ -126,9 +116,7 @@ export const approveRegistrationRequestService = async (request_id: string, admi
     const updatedRequest = await tx.registrationRequest.update({
       where: { id: request_id },
       data: {
-        status: "APPROVED",
-        approved_by_id: admin_id,
-        approved_at: new Date()
+        status: "APPROVED"
       }
     });
 
@@ -157,33 +145,14 @@ export const rejectRegistrationRequestService = async (request_id: string, admin
     where: { id: request_id },
     data: {
       status: "REJECTED",
-      rejection_reason: reason,
-      rejected_by_id: admin_id,
-      rejected_at: new Date(),
+      rejection_reason: reason
     },
   });
 
   return { message: "Registration request rejected" };
 };
 
-export const markCredentialsSentService = async (request_id: string, admin_id: string) => {
-  const request = await prisma.registrationRequest.findUnique({
-    where: { id: request_id },
-  });
-
-  if (!request) throw new AppError("Request not found", 404);
-  if (request.status !== "APPROVED") throw new AppError("Only approved requests can have credentials sent", 400);
-
-  await prisma.registrationRequest.update({
-    where: { id: request_id },
-    data: {
-      credentials_sent_at: new Date(),
-      credentials_sent_by_id: admin_id
-    }
-  });
-
-  return { message: "Credentials marked as sent" };
-};
+// markCredentialsSentService removed as fields are deleted from schema
 
 export const getClientsService = async () => {
   const data = await prisma.client.findMany({

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { getCategoriesService, getTemplatesService, getTemplateByIdService } from "../services/template.service";
-import { getTemplatesQuerySchema } from "../validators/template.validator";
+import { getCategoriesService, getTemplatesService, getTemplateByIdService, createCategoryService, createTemplateService } from "../services/template.service";
+import { getTemplatesQuerySchema, createTemplateCategorySchema, createTemplateSchema } from "../validators/template.validator";
+import { uploadToSupabase } from "../utils/file-upload";
 
 export const getTemplateCategories = async (req: Request, res: Response) => {
   try {
@@ -60,6 +61,70 @@ export const getTemplateById = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching template by ID:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const createTemplateCategory = async (req: Request, res: Response) => {
+  try {
+    const validatedData = createTemplateCategorySchema.safeParse(req.body);
+    if (!validatedData.success) {
+      return res.status(400).json({ success: false, message: "Validation failed", errors: validatedData.error.issues });
+    }
+
+    const category = await createCategoryService(validatedData.data);
+    res.status(201).json({
+      success: true,
+      message: "Template category created successfully",
+      data: category,
+    });
+  } catch (error: any) {
+    console.error("Error creating category:", error);
+    if (error.code === 'P2002') {
+      return res.status(400).json({ success: false, message: "Category with this slug already exists" });
+    }
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const createTemplate = async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    const body = { ...req.body };
+    
+    // If a file was uploaded, upload to Supabase
+    if (file) {
+      try {
+        body.fileUrl = await uploadToSupabase(file, "templates");
+      } catch (uploadError: any) {
+        return res.status(500).json({ success: false, message: "File upload failed", error: uploadError.message });
+      }
+    }
+
+    const validatedData = createTemplateSchema.safeParse(body);
+    if (!validatedData.success) {
+      return res.status(400).json({ success: false, message: "Validation failed", errors: validatedData.error.issues });
+    }
+
+    if (!validatedData.data.fileUrl) {
+      return res.status(400).json({ success: false, message: "File or fileUrl is required" });
+    }
+
+    const template = await createTemplateService({
+      title: validatedData.data.title,
+      description: validatedData.data.description,
+      categoryId: validatedData.data.categoryId,
+      fileUrl: validatedData.data.fileUrl,
+      isActive: validatedData.data.isActive,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Template created successfully",
+      data: template,
+    });
+  } catch (error) {
+    console.error("Error creating template:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

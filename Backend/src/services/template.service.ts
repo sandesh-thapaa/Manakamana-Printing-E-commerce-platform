@@ -49,3 +49,21 @@ export const getTemplateByIdService = async (id: string) => {
   });
   return template;
 };
+
+export const createCategoryService = async (data: { name: string; slug: string }) => {
+  return await prisma.templateCategory.create({
+    data,
+  });
+};
+
+export const createTemplateService = async (data: {
+  title: string;
+  description?: string;
+  categoryId: string;
+  fileUrl: string;
+  isActive?: boolean;
+}) => {
+  return await prisma.template.create({
+    data,
+  });
+};
