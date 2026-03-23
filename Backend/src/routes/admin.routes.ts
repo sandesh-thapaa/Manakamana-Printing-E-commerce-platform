@@ -4,6 +4,7 @@ import * as authController from "../controller/auth.controller";
 import { protect, restrictTo } from "../middleware/auth.middleware";
 import * as designSubmissionController from "../controller/design-submission.controller";
 import * as approvedDesignController from "../controller/approved-design.controller";
+import * as serviceController from "../controller/printing-service.controller";
 
 const router = Router();
 
@@ -32,5 +33,8 @@ router.patch("/design-submissions/:submissionId/reject", protect, restrictTo("AD
 router.get("/designs", protect, restrictTo("ADMIN"), approvedDesignController.getAdminDesigns);
 router.get("/designs/:designId", protect, restrictTo("ADMIN"), approvedDesignController.getAdminDesignById);
 router.patch("/designs/:designId/archive", protect, restrictTo("ADMIN"), approvedDesignController.archiveDesign);
+
+// PRINTING SERVICES MANAGEMENT
+router.post("/services", protect, restrictTo("ADMIN"), serviceController.createService);
 
 export default router;

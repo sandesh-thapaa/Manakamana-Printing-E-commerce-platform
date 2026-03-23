@@ -23,7 +23,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"client@example.com\",\n  \"password\": \"password123\"\n}"
+                  "raw": "{\n  \"phone_number\": \"9800000000\",\n  \"password\": \"password123\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/login",
@@ -167,6 +167,84 @@
               ],
               "path": [
                 "register-request"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Printing Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Printing Service By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/:serviceId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                ":serviceId"
+              ],
+              "variable": [
+                {
+                  "key": "serviceId",
+                  "value": "uuid"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Printing Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Printing Service By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/:serviceId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                ":serviceId"
+              ],
+              "variable": [
+                {
+                  "key": "serviceId",
+                  "value": "uuid"
+                }
               ]
             }
           }
@@ -822,6 +900,41 @@
           ]
         },
         {
+          "name": "Printing Services",
+          "item": [
+            {
+              "name": "Create Printing Service",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Visiting Cards\",\n  \"description\": \"Standard 3.5x2 inch cards\",\n  \"basePrice\": 500\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/services",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "services"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
           "name": "Template Management",
           "item": [
             {
@@ -927,8 +1040,7 @@
           ]
         }
       ]
-    }
-    ,
+    },
     {
       "name": "Wallet",
       "item": [
@@ -940,12 +1052,20 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/payment-details",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "payment-details"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "payment-details"
+                  ]
                 }
               }
             },
@@ -954,22 +1074,50 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "body": {
                   "mode": "formdata",
                   "formdata": [
-                    { "key": "amount", "value": "1500", "type": "text" },
-                    { "key": "paymentMethod", "value": "UPI", "type": "text" },
-                    { "key": "transferReference", "value": "UPI-8899123", "type": "text" },
-                    { "key": "note", "value": "Top up for next order", "type": "text" },
-                    { "key": "proofFile", "type": "file", "src": "" }
+                    {
+                      "key": "amount",
+                      "value": "1500",
+                      "type": "text"
+                    },
+                    {
+                      "key": "paymentMethod",
+                      "value": "UPI",
+                      "type": "text"
+                    },
+                    {
+                      "key": "transferReference",
+                      "value": "UPI-8899123",
+                      "type": "text"
+                    },
+                    {
+                      "key": "note",
+                      "value": "Top up for next order",
+                      "type": "text"
+                    },
+                    {
+                      "key": "proofFile",
+                      "type": "file",
+                      "src": ""
+                    }
                   ]
                 },
                 "url": {
                   "raw": "{{baseUrl}}/wallet/topup-requests",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "topup-requests"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "topup-requests"
+                  ]
                 }
               }
             },
@@ -978,15 +1126,29 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/topup-requests?page=1&limit=10",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "topup-requests"],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "topup-requests"
+                  ],
                   "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "10" }
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
                   ]
                 }
               }
@@ -996,13 +1158,27 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/topup-requests/:requestId",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "topup-requests", ":requestId"],
-                  "variable": [{ "key": "requestId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "topup-requests",
+                    ":requestId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "requestId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             },
@@ -1011,12 +1187,20 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/balance",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "balance"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "balance"
+                  ]
                 }
               }
             },
@@ -1025,15 +1209,29 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/transactions?page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "transactions"],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "transactions"
+                  ],
                   "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
                   ]
                 }
               }
@@ -1043,8 +1241,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1052,8 +1256,13 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/wallet/validate-checkout",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "validate-checkout"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "validate-checkout"
+                  ]
                 }
               }
             },
@@ -1062,8 +1271,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1071,9 +1286,21 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/wallet/orders/:orderId/confirm-wallet-payment",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "orders", ":orderId", "confirm-wallet-payment"],
-                  "variable": [{ "key": "orderId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "orders",
+                    ":orderId",
+                    "confirm-wallet-payment"
+                  ],
+                  "variable": [
+                    {
+                      "key": "orderId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             },
@@ -1082,12 +1309,20 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/notifications",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "notifications"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "notifications"
+                  ]
                 }
               }
             },
@@ -1096,13 +1331,28 @@
               "request": {
                 "method": "PATCH",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{clientToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clientToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/wallet/notifications/:notificationId/read",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["wallet", "notifications", ":notificationId", "read"],
-                  "variable": [{ "key": "notificationId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "wallet",
+                    "notifications",
+                    ":notificationId",
+                    "read"
+                  ],
+                  "variable": [
+                    {
+                      "key": "notificationId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             }
@@ -1116,8 +1366,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1125,8 +1381,14 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/payment-details",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "payment-details"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "payment-details"
+                  ]
                 }
               }
             },
@@ -1135,15 +1397,30 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/topup-requests?page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "topup-requests"],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "topup-requests"
+                  ],
                   "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
                   ]
                 }
               }
@@ -1153,13 +1430,28 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/topup-requests/:requestId",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "topup-requests", ":requestId"],
-                  "variable": [{ "key": "requestId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "topup-requests",
+                    ":requestId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "requestId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             },
@@ -1168,8 +1460,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1177,9 +1475,22 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/topup-requests/:requestId/approve",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "topup-requests", ":requestId", "approve"],
-                  "variable": [{ "key": "requestId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "topup-requests",
+                    ":requestId",
+                    "approve"
+                  ],
+                  "variable": [
+                    {
+                      "key": "requestId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             },
@@ -1188,8 +1499,14 @@
               "request": {
                 "method": "PATCH",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "body": {
                   "mode": "raw",
@@ -1197,9 +1514,22 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/topup-requests/:requestId/reject",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "topup-requests", ":requestId", "reject"],
-                  "variable": [{ "key": "requestId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "topup-requests",
+                    ":requestId",
+                    "reject"
+                  ],
+                  "variable": [
+                    {
+                      "key": "requestId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             },
@@ -1208,15 +1538,30 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/transactions?page=1&limit=20",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "transactions"],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "transactions"
+                  ],
                   "query": [
-                    { "key": "page", "value": "1" },
-                    { "key": "limit", "value": "20" }
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
                   ]
                 }
               }
@@ -1226,12 +1571,21 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/notifications",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "notifications"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "notifications"
+                  ]
                 }
               }
             },
@@ -1240,13 +1594,29 @@
               "request": {
                 "method": "PATCH",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/notifications/:notificationId/read",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "notifications", ":notificationId", "read"],
-                  "variable": [{ "key": "notificationId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "notifications",
+                    ":notificationId",
+                    "read"
+                  ],
+                  "variable": [
+                    {
+                      "key": "notificationId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             },
@@ -1255,13 +1625,28 @@
               "request": {
                 "method": "GET",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/admin/wallet/clients/:clientId",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["admin", "wallet", "clients", ":clientId"],
-                  "variable": [{ "key": "clientId", "value": "uuid" }]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "wallet",
+                    "clients",
+                    ":clientId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "clientId",
+                      "value": "uuid"
+                    }
+                  ]
                 }
               }
             }
