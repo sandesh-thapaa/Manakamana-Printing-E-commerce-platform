@@ -2,3 +2,38 @@ node_modules
 .env
 dist
 build
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# TypeScript build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Prisma
+# Let git track migrations but ignore generated client if it's in a custom location
+.prisma/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+/tmp/
+*.tmp
