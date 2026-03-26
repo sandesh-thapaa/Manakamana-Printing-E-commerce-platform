@@ -105,13 +105,17 @@ export const getAdminTransactionsService = async (params: {
 export const deductForOrderService = async (orderId: string, clientId: string) => {
   return prisma.$transaction(async (tx) => {
     // 1. Fetch order
-    const order = await tx.order.findUnique({ where: { id: orderId } });
+    const order = await tx.order.findUnique({ 
+      where: { id: orderId },
+      include: { variant: { include: { product: true } } }
+    });
     if (!order) throw new Error("Order not found");
-    if (order.clientId !== clientId) throw new Error("Order does not belong to you");
-    if (order.paymentStatus === "paid") throw new Error("Order already paid");
-    if (!order.totalAmount) throw new Error("Order total amount not set");
-
-    const orderAmount = Number(order.totalAmount);
+    if (order.user_id !== clientId) throw new Error("Order does not belong to you");
+    // Note: status is used for overall order status, we'll check if it's already 'paid' or 'confirmed' if we had a payment status
+    // For now, if walletTransactionId is set, it's paid.
+    if (order.walletTransactionId) throw new Error("Order already paid");
+    
+    const orderAmount = Number(order.final_amount);
 
     // 2. Get wallet with lock
     const wallet = await tx.walletAccount.findUnique({
@@ -138,7 +142,7 @@ export const deductForOrderService = async (orderId: string, clientId: string) =
         currency: wallet.currency,
         balanceBefore: currentBalance,
         balanceAfter: newBalance,
-        description: `Payment for order ${order.orderName}`,
+        description: `Payment for order: ${order.variant.product.name} (${order.variant.variant_name})`,
       },
     });
 
@@ -148,12 +152,13 @@ export const deductForOrderService = async (orderId: string, clientId: string) =
       data: { availableBalance: newBalance },
     });
 
-    // 5. Update order payment status
+    // 5. Update order
     await tx.order.update({
       where: { id: orderId },
       data: {
-        paymentStatus: "paid",
         walletTransactionId: txn.id,
+        // We could also update status to 'ORDER_PLACED' or similar if it was 'pending'
+        status: "ORDER_PLACED" 
       },
     });
 
@@ -165,7 +170,7 @@ export const deductForOrderService = async (orderId: string, clientId: string) =
         clientId,
         type: "wallet_debited_for_order",
         title: "Wallet payment applied",
-        message: `NPR ${orderAmount} deducted from wallet for order ${order.orderName}`,
+        message: `NPR ${orderAmount} deducted from wallet for ${order.variant.product.name}`,
         referenceId: orderId,
       },
     });
