@@ -1,13 +1,19 @@
 import { Request, Response } from "express";
 import * as orderService from "../../services/orders/product-order.service";
+import { createProductOrderSchema, updateOrderStatusSchema } from "../../validators/order.validator";
 
 // createProductOrder: Handles the placement of a new order by a client
 export const createProductOrder = async (req: Request, res: Response) => {
   try {
+    const validated = createProductOrderSchema.safeParse(req.body);
+    if (!validated.success) {
+      return res.status(400).json({ success: false, message: "Validation failed", errors: validated.error.issues });
+    }
+
     const userId = (req as any).user.id;
     const order = await orderService.createProductOrderService({
       userId,
-      ...req.body
+      ...validated.data
     });
     res.status(201).json({ success: true, message: "Order placed successfully", data: order });
   } catch (error: any) {
@@ -40,8 +46,12 @@ export const getAdminOrders = async (req: Request, res: Response) => {
 export const getOrderDetails = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
+    const currentUser = (req as any).user;
     const order = await orderService.getOrderDetailsService(orderId as string);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (currentUser.role === "CLIENT" && order.user_id !== currentUser.id) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
     res.status(200).json({ success: true, data: order });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -52,10 +62,14 @@ export const getOrderDetails = async (req: Request, res: Response) => {
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body;
-    const order = await orderService.updateOrderStatusService(orderId as string, status);
+    const validated = updateOrderStatusSchema.safeParse(req.body);
+    if (!validated.success) {
+      return res.status(400).json({ success: false, message: "Validation failed", errors: validated.error.issues });
+    }
+
+    const order = await orderService.updateOrderStatusService(orderId as string, validated.data.status);
     res.status(200).json({ success: true, message: "Order status updated successfully", data: order });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message || "Internal server error" });
   }
 };

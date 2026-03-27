@@ -1,9 +1,10 @@
 import prisma from "../../connect";
 import { AppError } from "../../utils/apperror";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 // CLIENT AUTH LOGIC
-// loginClientService: Handles client authentication using phone number and plain-text password, returning a JWT
+// loginClientService: Handles client authentication using phone number and password, returning a JWT
 export const loginClientService = async ({
   phone_number,
   password,
@@ -23,9 +24,22 @@ export const loginClientService = async ({
     throw new AppError("Client not found", 404);
   }
 
-  // PLAIN TEXT PASSWORD COMPARISON AS REQUESTED
-  if (password !== client.password) {
+  const isHashedPassword = client.password.startsWith("$2");
+  const passwordMatches = isHashedPassword
+    ? await bcrypt.compare(password, client.password)
+    : password === client.password;
+
+  if (!passwordMatches) {
     throw new AppError("Invalid credentials", 401);
+  }
+
+  // Upgrade legacy plain-text client passwords after a successful login.
+  if (!isHashedPassword) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await prisma.client.update({
+      where: { id: client.id },
+      data: { password: hashedPassword },
+    });
   }
 
   if (client.status !== "active") {

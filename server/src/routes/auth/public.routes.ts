@@ -2,6 +2,7 @@ import { Router } from "express";
 import { validate } from "../../middleware/validate.middleware";
 import * as adminController from "../../controller/admin/admin.controller";
 import * as serviceController from "../../controller/printing-service.controller";
+import * as publicCatalogController from "../../controller/catalog/public-catalog.controller";
 import { createRegistrationRequestSchema } from "../../validators/registration.validator";
 
 const router = Router();

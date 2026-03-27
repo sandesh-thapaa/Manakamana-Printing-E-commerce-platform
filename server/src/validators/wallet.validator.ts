@@ -1,10 +1,17 @@
 import { z } from "zod";
 
+const bankTransferOnlySchema = z
+  .string()
+  .trim()
+  .refine((value) => value === "BANK_TRANSFER", {
+    message: "paymentMethod must be BANK_TRANSFER",
+  });
+
 // -- Top-up request --
 // submitTopupSchema: Validates a client's reported payment amount and method
 export const submitTopupSchema = z.object({
   amount: z.coerce.number().positive("Amount must be greater than 0"),
-  paymentMethod: z.enum(["ONLINE", "BANK_TRANSFER"]),
+  paymentMethod: bankTransferOnlySchema,
   transferReference: z.string().max(100).optional(),
   note: z.string().max(500).optional(),
 });
@@ -61,7 +68,7 @@ export const topupQuerySchema = z.object({
 export const adminTopupQuerySchema = z.object({
   status: z.enum(["PENDING_REVIEW", "APPROVED", "REJECTED"]).optional(),
   clientId: z.string().optional(),
-  paymentMethod: z.enum(["ONLINE", "BANK_TRANSFER"]).optional(),
+  paymentMethod: bankTransferOnlySchema.optional(),
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(20),
 });

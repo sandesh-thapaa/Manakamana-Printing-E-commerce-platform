@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { buildCombinationKey, normalizeSelectedOptions } from "./product-pricing.service";
 const prisma = new PrismaClient();
 
 // Product Management
@@ -49,10 +50,32 @@ export const createOptionValueService = async (groupId: string, data: any) => {
 // Pricing Combination Management
 // createVariantPricingService: Defines a specific price point for a combination of option values
 export const createVariantPricingService = async (variantId: string, data: any) => {
+  const fallbackSelectedOptions = Object.fromEntries(
+    Object.entries(data).filter(([key]) => !["price", "discount_type", "discount_value", "is_active", "selectedOptions", "options"].includes(key))
+  );
+  const selectedOptions = normalizeSelectedOptions(data.selectedOptions ?? data.options ?? fallbackSelectedOptions);
+  const combinationKey = buildCombinationKey(selectedOptions);
+
+  const existingPricing = await prisma.variantPricing.findFirst({
+    where: {
+      variant_id: variantId,
+      combination_key: combinationKey,
+    },
+  });
+
+  if (existingPricing) {
+    throw new Error("A pricing row already exists for this exact option combination.");
+  }
+
   return await prisma.variantPricing.create({
     data: {
       variant_id: variantId,
-      ...data,
+      combination_key: combinationKey,
+      selected_options: selectedOptions as Prisma.InputJsonObject,
+      price: data.price,
+      discount_type: data.discount_type ?? null,
+      discount_value: data.discount_value ?? 0,
+      is_active: data.is_active ?? true,
     },
   });
 };

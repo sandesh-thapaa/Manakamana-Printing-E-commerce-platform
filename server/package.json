@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/index.js",
     "prisma:generate": "prisma generate",
-    "seed": "tsx prisma/seed.ts",
+    "seed:run": "tsx prisma/seed.ts",
+    "seed": "prisma migrate reset --force --skip-seed --skip-generate && npm run seed:run",
     "swagger": "tsx src/swagger.ts",
     "postinstall": "npm run prisma:generate"
   },

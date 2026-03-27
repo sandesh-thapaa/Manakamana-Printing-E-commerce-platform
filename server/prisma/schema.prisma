@@ -262,11 +262,8 @@ model OptionValue {
 model VariantPricing {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   variant_id    String   @db.Uuid
-  
-  holder_type   String?  @db.VarChar(60)
-  paper_quality String?  @db.VarChar(60)
-  page_color    String?  @db.VarChar(60)
-  binding       String?  @db.VarChar(60)
+  combination_key String @db.VarChar(500)
+  selected_options Json
 
   price           Decimal @db.Decimal(10, 2)
   discount_type   String? @db.VarChar(20)
@@ -277,6 +274,8 @@ model VariantPricing {
 
   variant ProductVariant @relation(fields: [variant_id], references: [id])
 
+  @@unique([variant_id, combination_key])
+  @@index([variant_id, is_active])
   @@map("variant_pricing")
 }
 

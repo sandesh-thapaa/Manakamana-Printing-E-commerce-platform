@@ -1,5 +1,6 @@
 import prisma from "../../connect";
 import { AppError } from "../../utils/apperror";
+import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 
 // getRegistrationRequestsService: Logic to fetch registration requests with optional status and search filtering
@@ -99,15 +100,15 @@ export const approveRegistrationRequestService = async (request_id: string, admi
   if (existingClient) throw new AppError("Client already exists for this phone number", 400);
 
   const clientCode = "MP-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-  const rawPassword = Math.random().toString(36).substring(7); // SIMPLE STRING PASSWORD
+  const rawPassword = Math.random().toString(36).substring(7);
+  const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
   const result = await prisma.$transaction(async (tx: any) => {
-    // 1. Create client with PLAIN TEXT password
     const newClient = await tx.client.create({
       data: {
         client_code: clientCode,
         phone_number: phone_number,
-        password: rawPassword, // PLAIN TEXT AS REQUESTED
+        password: hashedPassword,
         business_name: request.business_name,
         owner_name: request.owner_name,
         email: request.email,
@@ -116,7 +117,14 @@ export const approveRegistrationRequestService = async (request_id: string, admi
       }
     });
 
-    // 2. Update request
+    await tx.walletAccount.create({
+      data: {
+        clientId: newClient.id,
+        currency: "NPR",
+        availableBalance: 0,
+      },
+    });
+
     const updatedRequest = await tx.registrationRequest.update({
       where: { id: request_id },
       data: {

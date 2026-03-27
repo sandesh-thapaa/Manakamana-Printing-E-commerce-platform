@@ -1,19 +1,22 @@
 import { PrismaClient } from "@prisma/client";
-import { resolveCombinationPrice, calculateOrderAmount } from "../catalog/product-pricing.service";
+import { getVariantPricingCombination, calculateOrderAmount, normalizeSelectedOptions } from "../catalog/product-pricing.service";
 
 const prisma = new PrismaClient();
+
+const ORDER_STATUS_FLOW: Record<string, string | null> = {
+  ORDER_PLACED: "ORDER_ACCEPTED",
+  ORDER_ACCEPTED: "ORDER_PROCESSING",
+  ORDER_PROCESSING: "ORDER_DISPATCHED",
+  ORDER_DISPATCHED: "ORDER_DELIVERED",
+  ORDER_DELIVERED: null,
+};
 
 // createProductOrderService: Core logic for placing a new order, resolving pricing and saving configurations
 export const createProductOrderService = async (data: {
   userId: string;
   variantId: string;
   quantity: number;
-  options: {
-    holder_type?: string;
-    paper_quality?: string;
-    page_color?: string;
-    binding?: string;
-    // Map of group labels/names for configurations
+  options: Record<string, unknown> & {
     configDetails?: Array<{
       groupName: string;
       groupLabel: string;
@@ -21,49 +24,67 @@ export const createProductOrderService = async (data: {
       selectedLabel: string;
     }>;
   };
-  discount?: {
-    type: "percentage" | "fixed";
-    value: number;
-  };
   notes?: string;
-  designId?: string;
+  designCode?: string;
 }) => {
-  const { userId, variantId, quantity, options, discount, notes, designId } = data;
+  const { userId, variantId, quantity, options, notes, designCode } = data;
+  const selectedOptions = normalizeSelectedOptions(options);
 
-  // 1. Resolve Unit Price
-  const resolvedPrice = await resolveCombinationPrice(variantId, options);
-  if (!resolvedPrice) {
+  const pricingRow = await getVariantPricingCombination(variantId, selectedOptions);
+  if (!pricingRow) {
     throw new Error("Invalid combination of options for this product variant.");
   }
 
-  const unitPrice = Number(resolvedPrice);
+  const unitPrice = Number(pricingRow.price);
+  const pricingDiscount =
+    pricingRow.discount_type && Number(pricingRow.discount_value) > 0
+      ? {
+          type: pricingRow.discount_type as "percentage" | "fixed",
+          value: Number(pricingRow.discount_value),
+        }
+      : undefined;
 
-  // 2. Calculate Amounts
   const { totalAmount, discountAmount, finalAmount } = calculateOrderAmount(
     unitPrice,
     quantity,
-    discount
+    pricingDiscount
   );
 
-  // 3. Prepare Pricing Snapshot
   const pricingSnapshot = {
-    pricing: {
-      holder_type: options.holder_type,
-      paper_quality: options.paper_quality,
-      page_color: options.page_color,
-      binding: options.binding,
-    },
+    pricingRowId: pricingRow.id,
+    pricing: selectedOptions,
+    unit_price: unitPrice,
     base_total: totalAmount,
-    discount: discount ? {
-      type: discount.type,
-      value: discount.value,
-      amount: discountAmount
-    } : null,
-    final_total: finalAmount
+    discount: pricingDiscount
+      ? {
+          type: pricingDiscount.type,
+          value: pricingDiscount.value,
+          amount: discountAmount,
+        }
+      : null,
+    final_total: finalAmount,
+    designCode: designCode || null,
   };
 
-  // 4. Create Order and Configurations in a transaction
   return await prisma.$transaction(async (tx) => {
+    let approvedDesignId: string | null = null;
+
+    if (designCode) {
+      const approvedDesign = await tx.approvedDesign.findFirst({
+        where: {
+          designCode,
+          clientId: userId,
+          status: "ACTIVE",
+        },
+      });
+
+      if (!approvedDesign) {
+        throw new Error("Invalid design code. Please use an active approved design code belonging to your account.");
+      }
+
+      approvedDesignId = approvedDesign.id;
+    }
+
     const order = await tx.order.create({
       data: {
         user_id: userId,
@@ -71,14 +92,15 @@ export const createProductOrderService = async (data: {
         quantity: quantity,
         unit_price: unitPrice,
         total_amount: totalAmount,
-        discount_type: discount?.type || null,
-        discount_value: discount?.value || 0,
+        discount_type: pricingDiscount?.type || null,
+        discount_value: pricingDiscount?.value || 0,
         discount_amount: discountAmount,
         final_amount: finalAmount,
         notes: notes,
-        designId: designId,
+        designId: approvedDesignId,
         pricing_snapshot: pricingSnapshot as any,
         status: "ORDER_PLACED",
+        payment_status: "PENDING",
       },
     });
 
@@ -103,6 +125,13 @@ export const getOrderDetailsService = async (orderId: string) => {
   return await prisma.order.findUnique({
     where: { id: orderId },
     include: {
+      approvedDesign: {
+        select: {
+          id: true,
+          designCode: true,
+          status: true,
+        },
+      },
       variant: {
         include: {
           product: true,
@@ -118,6 +147,11 @@ export const getClientOrdersService = async (userId: string) => {
   return await prisma.order.findMany({
     where: { user_id: userId },
     include: {
+      approvedDesign: {
+        select: {
+          designCode: true,
+        },
+      },
       variant: {
         select: {
           variant_name: true,
@@ -134,6 +168,11 @@ export const getAllOrdersService = async () => {
   return await prisma.order.findMany({
     include: {
       client: { select: { business_name: true, phone_number: true } },
+      approvedDesign: {
+        select: {
+          designCode: true,
+        },
+      },
       variant: {
         select: {
           variant_name: true,
@@ -147,6 +186,33 @@ export const getAllOrdersService = async () => {
 
 // updateOrderStatusService: Logic to transition an order status (e.g., from PLACED to PROCESSING)
 export const updateOrderStatusService = async (orderId: string, status: string) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+  });
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(ORDER_STATUS_FLOW, status)) {
+    throw new Error("Unsupported order status");
+  }
+
+  if (order.status === status) {
+    return order;
+  }
+
+  const allowedNextStatus = ORDER_STATUS_FLOW[order.status];
+  if (allowedNextStatus !== status) {
+    throw new Error(
+      `Invalid status transition. Allowed next status from ${order.status} is ${allowedNextStatus ?? "none"}.`
+    );
+  }
+
+  if (status === "ORDER_ACCEPTED" && order.payment_status !== "PAID") {
+    throw new Error("Only paid orders can be accepted for processing.");
+  }
+
   return await prisma.order.update({
     where: { id: orderId },
     data: { status: status as any, updated_at: new Date() },

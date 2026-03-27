@@ -90,7 +90,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"business_name\": \"My Business\",\n  \"owner_name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone_number\": \"9800000000\",\n  \"address\": \"Kathmandu\",\n  \"notes\": \"Test registration\"\n}"
+              "raw": "{\n  \"business_name\": \"My Business\",\n  \"owner_name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone_number\": \"9800000000\",\n  \"business_address\": \"Kathmandu\",\n  \"notes\": \"Test registration\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/register-request", "host": ["{{baseUrl}}"], "path": ["register-request"] }
           }
@@ -116,7 +116,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"quantity\": 100,\n  \"options\": {\n    \"holder_type\": \"D\"\n  }\n}"
+              "raw": "{\n  \"quantity\": 100,\n  \"options\": {\n    \"printing_side\": \"DOUBLE_SIDE\",\n    \"orientation\": \"PORTRAIT\"\n  }\n}"
             },
             "url": { "raw": "{{baseUrl}}/variants/:variantId/calculate-price", "host": ["{{baseUrl}}"], "path": ["variants", ":variantId", "calculate-price"], "variable": [{ "key": "variantId", "value": "" }] }
           }
@@ -262,7 +262,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"variantId\": \"\",\n  \"quantity\": 100,\n  \"options\": {\n    \"configDetails\": [\n      {\n        \"groupName\": \"\",\n        \"groupLabel\": \"\",\n        \"selectedCode\": \"\",\n        \"selectedLabel\": \"\"\n      }\n    ]\n  },\n  \"notes\": \"\",\n  \"designId\": \"\"\n}"
+                  "raw": "{\n  \"variantId\": \"\",\n  \"quantity\": 100,\n  \"options\": {\n    \"printing_side\": \"DOUBLE_SIDE\",\n    \"orientation\": \"PORTRAIT\",\n    \"lamination\": \"GLOSS\",\n    \"configDetails\": [\n      {\n        \"groupName\": \"printing_side\",\n        \"groupLabel\": \"Printing Side\",\n        \"selectedCode\": \"DOUBLE_SIDE\",\n        \"selectedLabel\": \"Double Side\"\n      },\n      {\n        \"groupName\": \"orientation\",\n        \"groupLabel\": \"Orientation\",\n        \"selectedCode\": \"PORTRAIT\",\n        \"selectedLabel\": \"Portrait\"\n      },\n      {\n        \"groupName\": \"lamination\",\n        \"groupLabel\": \"Lamination\",\n        \"selectedCode\": \"GLOSS\",\n        \"selectedLabel\": \"Gloss\"\n      }\n    ]\n  },\n  \"notes\": \"\",\n  \"designCode\": \"DSN-2026-000001\"\n}"
                 },
                 "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
               }
@@ -356,7 +356,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"amount\": 500\n}"
+                  "raw": "{\n  \"orderAmount\": 500\n}"
                 },
                 "url": { "raw": "{{baseUrl}}/wallet/validate-checkout", "host": ["{{baseUrl}}"], "path": ["wallet", "validate-checkout"] }
               }
@@ -385,7 +385,11 @@
                   { "key": "Authorization", "value": "Bearer {{clientToken}}" },
                   { "key": "Content-Type", "value": "application/json" }
                 ],
-                "url": { "raw": "{{baseUrl}}/wallet/orders/:orderId/confirm-wallet-payment", "host": ["{{baseUrl}}"], "path": ["wallet", "orders", ":orderId", "confirm-wallet-payment"], "variable": [{ "key": "orderId", "value": "" }] }
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"useWallet\": true\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/orders/:orderId/confirm-wallet-payment", "host": ["{{baseUrl}}"], "path": ["orders", ":orderId", "confirm-wallet-payment"], "variable": [{ "key": "orderId", "value": "" }] }
               }
             }
           ]
@@ -628,7 +632,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"paper_quality\": \"250GSM\",\n  \"price\": 10.50\n}"
+                  "raw": "{\n  \"selectedOptions\": {\n    \"printing_side\": \"DOUBLE_SIDE\",\n    \"orientation\": \"PORTRAIT\",\n    \"lamination\": \"GLOSS\"\n  },\n  \"price\": 25,\n  \"discount_type\": \"percentage\",\n  \"discount_value\": 10\n}"
                 },
                 "url": { "raw": "{{baseUrl}}/admin/variants/:variantId/pricing", "host": ["{{baseUrl}}"], "path": ["admin", "variants", ":variantId", "pricing"], "variable": [{ "key": "variantId", "value": "" }] }
               }
@@ -693,7 +697,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"status\": \"ORDER_PROCESSING\"\n}"
+                  "raw": "{\n  \"status\": \"ORDER_ACCEPTED\"\n}"
                 },
                 "url": { "raw": "{{baseUrl}}/admin/orders/:orderId/status", "host": ["{{baseUrl}}"], "path": ["admin", "orders", ":orderId", "status"], "variable": [{ "key": "orderId", "value": "" }] }
               }

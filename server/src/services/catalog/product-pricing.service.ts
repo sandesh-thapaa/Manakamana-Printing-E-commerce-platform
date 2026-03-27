@@ -1,25 +1,41 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+type PricingOptionsInput = Record<string, unknown> | undefined;
+
+export const normalizeSelectedOptions = (options: PricingOptionsInput = {}) => {
+  const entries = Object.entries(options).reduce<Array<readonly [string, string]>>((acc, [key, value]) => {
+    if (key !== "configDetails" && typeof value === "string") {
+      const trimmedValue = value.trim();
+      if (trimmedValue.length > 0) {
+        acc.push([key, trimmedValue] as const);
+      }
+    }
+    return acc;
+  }, []).sort(([left], [right]) => left.localeCompare(right));
+
+  return Object.fromEntries(entries) as Record<string, string>;
+};
+
+export const buildCombinationKey = (selectedOptions: Record<string, string>) => {
+  const entries = Object.entries(selectedOptions).sort(([left], [right]) => left.localeCompare(right));
+  return entries.length === 0
+    ? "__NO_OPTIONS__"
+    : JSON.stringify(Object.fromEntries(entries));
+};
+
 // getVariantPricingCombination: Queries the database for a price record matching the specific chosen options
 export const getVariantPricingCombination = async (
   variantId: string,
-  options: {
-    holder_type?: string | null;
-    paper_quality?: string | null;
-    page_color?: string | null;
-    binding?: string | null;
-  }
+  options: PricingOptionsInput
 ) => {
-  const { holder_type, paper_quality, page_color, binding } = options;
+  const selectedOptions = normalizeSelectedOptions(options);
+  const combinationKey = buildCombinationKey(selectedOptions);
 
   return await prisma.variantPricing.findFirst({
     where: {
       variant_id: variantId,
-      holder_type: holder_type || null,
-      paper_quality: paper_quality || null,
-      page_color: page_color || null,
-      binding: binding || null,
+      combination_key: combinationKey,
       is_active: true,
     },
   });
@@ -28,12 +44,7 @@ export const getVariantPricingCombination = async (
 // resolveCombinationPrice: Helper to extract only the price value for a given option set
 export const resolveCombinationPrice = async (
   variantId: string,
-  options: {
-    holder_type?: string | null;
-    paper_quality?: string | null;
-    page_color?: string | null;
-    binding?: string | null;
-  }
+  options: PricingOptionsInput
 ) => {
   const pricing = await getVariantPricingCombination(variantId, options);
   return pricing ? pricing.price : null;
