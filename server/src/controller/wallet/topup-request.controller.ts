@@ -17,7 +17,7 @@ import {
 } from "../../validators/wallet.validator";
 import { uploadToSupabase } from "../../utils/file-upload";
 
-// ── CLIENT: Submit top-up request ──
+// submitTopupRequest: Allows a client to submit a proof-of-payment (file) for balance top-up approval
 export const submitTopupRequest = async (req: Request, res: Response) => {
   try {
     const file = req.file;
@@ -67,7 +67,7 @@ export const submitTopupRequest = async (req: Request, res: Response) => {
   }
 };
 
-// ── CLIENT: Get my top-up requests ──
+// getMyTopupRequests: Lists all pending and processed top-up requests for the current client
 export const getMyTopupRequests = async (req: Request, res: Response) => {
   try {
     const validated = topupQuerySchema.safeParse(req.query);
@@ -90,7 +90,7 @@ export const getMyTopupRequests = async (req: Request, res: Response) => {
   }
 };
 
-// ── CLIENT: Get single top-up request ──
+// getMyTopupRequestById: Returns the specifics and status of a single top-up request
 export const getMyTopupRequestById = async (req: Request, res: Response) => {
   try {
     const requestId = req.params.requestId as string;
@@ -123,7 +123,7 @@ export const getMyTopupRequestById = async (req: Request, res: Response) => {
   }
 };
 
-// ── ADMIN: Get all top-up requests ──
+// getAdminTopupRequests: Admin-only view to browse and filter all top-up submissions across the platform
 export const getAdminTopupRequests = async (req: Request, res: Response) => {
   try {
     const validated = adminTopupQuerySchema.safeParse(req.query);
@@ -146,7 +146,7 @@ export const getAdminTopupRequests = async (req: Request, res: Response) => {
   }
 };
 
-// ── ADMIN: Get single top-up request ──
+// getAdminTopupRequestById: Detailed administrative view of a specific top-up request, including proof file
 export const getAdminTopupRequestById = async (req: Request, res: Response) => {
   try {
     const requestId = req.params.requestId as string;
@@ -181,7 +181,7 @@ export const getAdminTopupRequestById = async (req: Request, res: Response) => {
   }
 };
 
-// ── ADMIN: Approve top-up request ──
+// approveTopupRequest: Validates a payment and adds the approved amount to the client's wallet
 export const approveTopupRequest = async (req: Request, res: Response) => {
   try {
     const requestId = req.params.requestId as string;
@@ -218,7 +218,7 @@ export const approveTopupRequest = async (req: Request, res: Response) => {
   }
 };
 
-// ── ADMIN: Reject top-up request ──
+// rejectTopupRequest: Denies a top-up request and provides a rejection reason to the client
 export const rejectTopupRequest = async (req: Request, res: Response) => {
   try {
     const requestId = req.params.requestId as string;

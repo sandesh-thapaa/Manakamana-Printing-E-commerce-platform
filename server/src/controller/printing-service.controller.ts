@@ -8,6 +8,7 @@ const createServiceSchema = z.object({
   basePrice: z.number().positive(),
 });
 
+// getServices: Fetches all listed printing services for public view
 export const getServices = async (req: Request, res: Response) => {
   try {
     const services = await serviceLogic.getPrintingServicesService();
@@ -17,6 +18,7 @@ export const getServices = async (req: Request, res: Response) => {
   }
 };
 
+// createService: Admin-only function to add a new printing service with a base price
 export const createService = async (req: Request, res: Response) => {
   try {
     const validated = createServiceSchema.safeParse(req.body);
@@ -31,6 +33,7 @@ export const createService = async (req: Request, res: Response) => {
   }
 };
 
+// getServiceById: Returns the specifics of a single printing service
 export const getServiceById = async (req: Request, res: Response) => {
   try {
     const { serviceId } = req.params;

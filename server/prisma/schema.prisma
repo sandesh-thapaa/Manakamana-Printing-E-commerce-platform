@@ -53,19 +53,12 @@ enum WalletTxnSource {
   ADJUSTMENT
 }
 
-enum PaymentMethod {
-  ONLINE
-  BANK_TRANSFER
-}
 
 enum NotificationRecipientRole {
   CLIENT
   ADMIN
 }
 
-// Removed OrderType enum as it's now generalized
-
-// Removed IdCard enums as they are now generalized
 
 // ADMIN USERS
 
@@ -73,13 +66,12 @@ model AdminUser {
   id       String @id @default(uuid())
   name     String
   email    String @unique
-  password String // PLAIN TEXT STORED AS REQUESTED
+  password String
   role     String @default("ADMIN")
 
   reviewedSubmissions  DesignSubmission[]    @relation("ReviewedSubmissions")
   approvedDesigns      ApprovedDesign[]      @relation("ApprovedDesigns")
   archivedDesigns      ApprovedDesign[]      @relation("ArchivedDesigns")
-  auditLogs            AuditLog[]
   companyPaymentDetails CompanyPaymentDetail[]
   walletTopupReviews   WalletTopupRequest[]
 
@@ -114,16 +106,16 @@ model RegistrationRequest {
 
 model Client {
   id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  client_code  String? @unique // Immutable internal ID
-  phone_number String  @unique // Login ID
-  password     String // PLAIN TEXT STORED AS REQUESTED
+  client_code  String? @unique
+  phone_number String  @unique
+  password     String
 
   business_name String
   owner_name    String
   email         String
   address       String?
 
-  status String @default("active") // active | inactive
+  status String @default("active")
 
   orders            Order[]
   designSubmissions DesignSubmission[]
@@ -132,7 +124,6 @@ model Client {
   walletAccount     WalletAccount?
   walletTopupRequests WalletTopupRequest[]
   walletTransactions WalletTransaction[]
-  // Removed legacy relation, merged with orders
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -148,9 +139,6 @@ model PrintingService {
   description String?
   basePrice   Float
   isActive    Boolean @default(true)
-
-  // orders Order[] - Removed as Order is now universal
-
   createdAt DateTime @default(now())
 
   @@map("printing_services")
@@ -187,20 +175,36 @@ model Template {
   @@map("templates")
 }
 
-// NEW ORDER CATALOG SYSTEM
+// PRODUCT CATALOG SYSTEM
 
-// UNIVERSAL PRICING SYSTEM
+model ProductCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  image_url   String?  @db.Text
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt @default(now())
+
+  products Product[]
+
+  @@map("product_categories")
+}
 
 model Product {
   id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category_id     String?          @db.Uuid
   product_code    String           @unique @db.VarChar(20)
   name            String           @db.VarChar(100)
   description     String?          @db.Text
+  image_url       String?          @db.Text
   production_days Int              @default(3)
   is_active       Boolean          @default(true)
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt @default(now())
 
+  category ProductCategory? @relation(fields: [category_id], references: [id])
   variants ProductVariant[]
 
   @@map("products")
@@ -264,7 +268,10 @@ model VariantPricing {
   page_color    String?  @db.VarChar(60)
   binding       String?  @db.VarChar(60)
 
-  price      Decimal @db.Decimal(10, 2)
+  price           Decimal @db.Decimal(10, 2)
+  discount_type   String? @db.VarChar(20)
+  discount_value  Decimal @default(0) @db.Decimal(10, 2)
+  
   is_active  Boolean @default(true)
   created_at DateTime @default(now())
 
@@ -308,7 +315,7 @@ model DesignSubmission {
 
 model ApprovedDesign {
   id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  designCode String @unique // Public Design ID shown to client e.g., DSN-2026-000001
+  designCode String @unique
 
   clientId String @db.Uuid
   client   Client @relation(fields: [clientId], references: [id])
@@ -348,8 +355,7 @@ model Notification {
   createdAt     DateTime                  @default(now())
   readAt        DateTime?
 
-  // Legacy relation kept for backward compatibility
-  clientId      String?
+  clientId      String?  @db.Uuid
   client        Client?  @relation(fields: [clientId], references: [id])
 
   @@index([recipientRole, recipientId])
@@ -358,18 +364,6 @@ model Notification {
   @@map("notifications")
 }
 
-model AuditLog {
-  id         String     @id @default(uuid())
-  action     String
-  entityId   String
-  entityType String
-  adminId    String?
-  admin      AdminUser? @relation(fields: [adminId], references: [id])
-  details    Json?
-  createdAt  DateTime   @default(now())
-
-  @@map("audit_logs")
-}
 
 // ORDER SYSTEM
 
@@ -381,13 +375,13 @@ model Order {
   unit_price       Decimal  @db.Decimal(10, 2)
   total_amount     Decimal  @db.Decimal(10, 2)
   
-  // DISCOUNT SYSTEM
-  discount_type    String?  @db.VarChar(20) // percentage | fixed
+  discount_type    String?  @db.VarChar(20)
   discount_value   Decimal  @default(0) @db.Decimal(10, 2)
   discount_amount  Decimal  @default(0) @db.Decimal(10, 2)
   final_amount     Decimal  @db.Decimal(10, 2)
 
-  status           String   @default("pending") @db.VarChar(30)
+  status           OrderStatus @default(ORDER_PLACED)
+  payment_status   String   @default("PENDING") @db.VarChar(20)
   notes            String?  @db.Text
   pricing_snapshot Json?
   
@@ -466,7 +460,7 @@ model WalletTopupRequest {
   clientId          String             @db.Uuid
   submittedAmount   Decimal            @db.Decimal(12, 2)
   approvedAmount    Decimal?           @db.Decimal(12, 2)
-  paymentMethod     PaymentMethod
+  paymentMethod     String
   transferReference String?
   note              String?
   proofFilePath     String
@@ -517,7 +511,6 @@ model WalletTransaction {
   client         Client           @relation(fields: [clientId], references: [id])
   topupRequest   WalletTopupRequest? @relation(fields: [topupRequestId], references: [id])
   order          Order?             @relation("OrderToWalletTxn")
-  // Removed idCardOrder as it's now merged with order
 
   createdAt      DateTime         @default(now())
 

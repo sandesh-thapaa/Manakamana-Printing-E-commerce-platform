@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { getClientTransactionsService, getAdminTransactionsService, deductForOrderService } from "../../services/wallet/wallet-transaction.service";
 import { transactionQuerySchema, adminTransactionQuerySchema, confirmWalletPaymentSchema } from "../../validators/wallet.validator";
 
-// ── CLIENT: Get wallet transactions ──
+// getWalletTransactions: Returns a history of all credits and debits for the current client
 export const getWalletTransactions = async (req: Request, res: Response) => {
   try {
     const validated = transactionQuerySchema.safeParse(req.query);
@@ -26,7 +26,7 @@ export const getWalletTransactions = async (req: Request, res: Response) => {
   }
 };
 
-// ── ADMIN: Get all transactions ──
+// getAdminTransactions: Provides a system-wide view of all financial movements for administrative audit
 export const getAdminTransactions = async (req: Request, res: Response) => {
   try {
     const validated = adminTransactionQuerySchema.safeParse(req.query);
@@ -51,7 +51,7 @@ export const getAdminTransactions = async (req: Request, res: Response) => {
   }
 };
 
-// ── CLIENT: Confirm wallet payment for order ──
+// confirmWalletPayment: Finalizes an order by deducting the required amount from the client's wallet balance
 export const confirmWalletPayment = async (req: Request, res: Response) => {
   try {
     const orderId = req.params.orderId as string;

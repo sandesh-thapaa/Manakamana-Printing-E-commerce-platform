@@ -8,4 +8,5 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn("Supabase URL or Key is missing in environment variables.");
 }
 
+// supabase: Exported instance of the Supabase client for storage and database interactions
 export const supabase = createClient(supabaseUrl, supabaseKey);

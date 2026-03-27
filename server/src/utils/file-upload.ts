@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 import { v4 as uuidv4 } from "uuid";
 
+// uploadToSupabase: Processes file uploads to Supabase Storage and returns the public URL
 export const uploadToSupabase = async (
   file: Express.Multer.File,
   folder: string = "uploads"

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
+// globalErrorHandler: Catch-all middleware to handle all errors and return a consistent JSON response
 export const globalErrorHandler = (
   err: any,
   req: Request,

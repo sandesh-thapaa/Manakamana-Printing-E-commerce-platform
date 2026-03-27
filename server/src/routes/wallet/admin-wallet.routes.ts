@@ -10,23 +10,23 @@ const router = Router();
 // All admin wallet routes require ADMIN auth
 router.use(protect, restrictTo("ADMIN"));
 
-// Payment details management
+// Payment details management: Define the platform's bank/QR details for top-ups
 router.post("/payment-details", createPaymentDetails);
 
-// Top-up request management
+// Top-up request management: Review and process client balance top-up submissions
 router.get("/topup-requests", getAdminTopupRequests);
 router.get("/topup-requests/:requestId", getAdminTopupRequestById);
 router.post("/topup-requests/:requestId/approve", approveTopupRequest);
 router.patch("/topup-requests/:requestId/reject", rejectTopupRequest);
 
-// Transaction log
+// Transaction log: View all financial wallet movements across the platform
 router.get("/transactions", getAdminTransactions);
 
-// Notifications
+// Notifications: Admin-specific alerts and read-status management
 router.get("/notifications", getAdminNotifications);
 router.patch("/notifications/:notificationId/read", markAdminNotificationRead);
 
-// Client wallet summary
+// Client wallet summary: Fetch a specific client's financial status
 router.get("/clients/:clientId", getAdminClientWalletSummary);
 
 export default router;

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { createPaymentDetailsService, getActivePaymentDetailsService } from "../../services/wallet/payment-details.service";
 import { createPaymentDetailsSchema } from "../../validators/wallet.validator";
 
-// GET /api/v1/wallet/payment-details (CLIENT)
+// getPaymentDetails: Returns the currently active bank and QR payment information for clients to perform top-ups
 export const getPaymentDetails = async (req: Request, res: Response) => {
   try {
     const details = await getActivePaymentDetailsService();
@@ -28,7 +28,7 @@ export const getPaymentDetails = async (req: Request, res: Response) => {
   }
 };
 
-// POST /api/v1/admin/wallet/payment-details (ADMIN)
+// createPaymentDetails: Admin-only function to update the platform's official payment collection details
 export const createPaymentDetails = async (req: Request, res: Response) => {
   try {
     const validated = createPaymentDetailsSchema.safeParse(req.body);

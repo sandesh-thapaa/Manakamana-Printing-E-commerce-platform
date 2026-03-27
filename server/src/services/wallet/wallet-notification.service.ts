@@ -1,6 +1,6 @@
 import prisma from "../../connect";
 
-// ── Get notifications ──
+// getNotificationsService: Fetches filtered, paginated alerts for either clients or administrators
 export const getNotificationsService = async (params: {
   recipientRole: string;
   recipientId: string;
@@ -50,7 +50,7 @@ export const getNotificationsService = async (params: {
   };
 };
 
-// ── Mark notification as read ──
+// markNotificationAsReadService: Logic to transition a single alert to READ status
 export const markNotificationAsReadService = async (
   notificationId: string,
   recipientRole: string,
@@ -70,7 +70,7 @@ export const markNotificationAsReadService = async (
   });
 };
 
-// ── Get client wallet summary for admin ──
+// getClientWalletSummaryService: Advanced admin view providing a financial profile and transaction summary for a client
 export const getClientWalletSummaryService = async (clientId: string) => {
   const client = await prisma.client.findUnique({
     where: { id: clientId },

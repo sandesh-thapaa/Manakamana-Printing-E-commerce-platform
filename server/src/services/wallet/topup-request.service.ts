@@ -2,7 +2,7 @@ import prisma from "../../connect";
 import { Decimal } from "@prisma/client/runtime/library";
 import { getOrCreateWalletService } from "./wallet-account.service";
 
-// ── CLIENT: Submit top-up request ──
+// submitTopupService: Persists a client's top-up request and creates an administrative alert
 export const submitTopupService = async (data: {
   clientId: string;
   submittedAmount: number;
@@ -47,7 +47,7 @@ export const submitTopupService = async (data: {
   return request;
 };
 
-// ── CLIENT: Get my top-up requests ──
+// getClientTopupsService: Paginated history of top-up attempts for the current client
 export const getClientTopupsService = async (params: {
   clientId: string;
   status?: string;
@@ -87,14 +87,14 @@ export const getClientTopupsService = async (params: {
   };
 };
 
-// ── CLIENT: Get single top-up request ──
+// getClientTopupByIdService: Logic to fetch a single top-up request's details for a client
 export const getClientTopupByIdService = async (requestId: string, clientId: string) => {
   return prisma.walletTopupRequest.findFirst({
     where: { id: requestId, clientId },
   });
 };
 
-// ── ADMIN: Get all top-up requests ──
+// getAdminTopupsService: Admin overview of all top-up requests with filtering and pagination
 export const getAdminTopupsService = async (params: {
   status?: string;
   clientId?: string;
@@ -140,7 +140,7 @@ export const getAdminTopupsService = async (params: {
   };
 };
 
-// ── ADMIN: Get single top-up request detail ──
+// getAdminTopupByIdService: Detailed retrieval of a top-up request for administrative review
 export const getAdminTopupByIdService = async (requestId: string) => {
   return prisma.walletTopupRequest.findUnique({
     where: { id: requestId },
@@ -150,7 +150,7 @@ export const getAdminTopupByIdService = async (requestId: string) => {
   });
 };
 
-// ── ADMIN: Approve top-up request (ATOMIC) ──
+// approveTopupService: Complex atomic transaction to finalize a top-up, update balance, and notify client
 export const approveTopupService = async (
   requestId: string,
   adminId: string,
@@ -224,22 +224,6 @@ export const approveTopupService = async (
       },
     });
 
-    // 7. Audit log
-    await tx.auditLog.create({
-      data: {
-        action: "TOPUP_APPROVED",
-        entityId: requestId,
-        entityType: "WalletTopupRequest",
-        adminId,
-        details: {
-          submittedAmount: Number(request.submittedAmount),
-          approvedAmount,
-          previousBalance: currentBalance,
-          newBalance,
-        },
-      },
-    });
-
     return {
       request: updatedRequest,
       transaction: txn,
@@ -248,7 +232,7 @@ export const approveTopupService = async (
   });
 };
 
-// ── ADMIN: Reject top-up request ──
+// rejectTopupService: Logic to deny a top-up request, capture feedback, and alert the client
 export const rejectTopupService = async (
   requestId: string,
   adminId: string,
@@ -286,17 +270,6 @@ export const rejectTopupService = async (
         title: "Wallet top-up rejected",
         message: `Your top-up request for NPR ${Number(request.submittedAmount)} was rejected: ${reason}`,
         referenceId: request.id,
-      },
-    });
-
-    // Audit log
-    await tx.auditLog.create({
-      data: {
-        action: "TOPUP_REJECTED",
-        entityId: requestId,
-        entityType: "WalletTopupRequest",
-        adminId,
-        details: { reason, reasonCode },
       },
     });
 

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 // -- Top-up request --
+// submitTopupSchema: Validates a client's reported payment amount and method
 export const submitTopupSchema = z.object({
   amount: z.coerce.number().positive("Amount must be greater than 0"),
   paymentMethod: z.enum(["ONLINE", "BANK_TRANSFER"]),
@@ -9,18 +10,21 @@ export const submitTopupSchema = z.object({
 });
 
 // -- Approve top-up --
+// approveTopupSchema: Validates the official amount confirmed by admin during top-up approval
 export const approveTopupSchema = z.object({
   approvedAmount: z.coerce.number().positive("Approved amount must be greater than 0"),
   note: z.string().max(500).optional(),
 });
 
 // -- Reject top-up --
+// rejectTopupSchema: Ensures a valid rejection reason and category code are provided by admin
 export const rejectTopupSchema = z.object({
   reason: z.string().min(1, "Rejection reason is required").max(1000),
   reasonCode: z.enum(["INVALID_PROOF", "AMOUNT_MISMATCH", "PAYMENT_NOT_FOUND", "DUPLICATE_REQUEST"]).optional(),
 });
 
 // -- Company payment details --
+// createPaymentDetailsSchema: Validates platform-wide banking and QR payment information
 export const createPaymentDetailsSchema = z.object({
   companyName: z.string().min(1),
   bankName: z.string().min(1),
@@ -34,22 +38,26 @@ export const createPaymentDetailsSchema = z.object({
 });
 
 // -- Validate checkout --
+// validateCheckoutSchema: Ensures a positive order amount for pre-payment balance checks
 export const validateCheckoutSchema = z.object({
   orderAmount: z.coerce.number().positive("Order amount must be greater than 0"),
 });
 
 // -- Confirm wallet payment --
+// confirmWalletPaymentSchema: Strict confirmation flag for finalizing wallet deductions
 export const confirmWalletPaymentSchema = z.object({
   useWallet: z.boolean().refine((v) => v === true, { message: "useWallet must be true" }),
 });
 
 // -- Query schemas --
+// topupQuerySchema: Filters for a client's personal history of top-up requests
 export const topupQuerySchema = z.object({
   status: z.enum(["PENDING_REVIEW", "APPROVED", "REJECTED"]).optional(),
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(10),
 });
 
+// adminTopupQuerySchema: Advanced filters for administrative management of all top-ups
 export const adminTopupQuerySchema = z.object({
   status: z.enum(["PENDING_REVIEW", "APPROVED", "REJECTED"]).optional(),
   clientId: z.string().optional(),
@@ -58,6 +66,7 @@ export const adminTopupQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional().default(20),
 });
 
+// transactionQuerySchema: Basic history filters for client's wallet transactions
 export const transactionQuerySchema = z.object({
   type: z.enum(["CREDIT", "DEBIT"]).optional(),
   source: z.enum(["TOPUP", "ORDER", "REFUND", "ADJUSTMENT"]).optional(),
@@ -65,6 +74,7 @@ export const transactionQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional().default(20),
 });
 
+// adminTransactionQuerySchema: Detailed system-wide audit trail filters for administrators
 export const adminTransactionQuerySchema = z.object({
   clientId: z.string().optional(),
   type: z.enum(["CREDIT", "DEBIT"]).optional(),
@@ -75,6 +85,7 @@ export const adminTransactionQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional().default(20),
 });
 
+// notificationQuerySchema: Standard filters for dismissing or browsing in-app alerts
 export const notificationQuerySchema = z.object({
   isRead: z.coerce.boolean().optional(),
   page: z.coerce.number().int().positive().optional().default(1),

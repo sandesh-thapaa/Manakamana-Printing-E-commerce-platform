@@ -1,5 +1,6 @@
 import prisma from "../../connect";
 
+// createPaymentDetailsService: Logic to create new platform payment details and automatically deactivate older active records
 export const createPaymentDetailsService = async (data: {
   companyName: string;
   bankName: string;
@@ -36,6 +37,7 @@ export const createPaymentDetailsService = async (data: {
   });
 };
 
+// getActivePaymentDetailsService: Retrieves the currently active bank and QR info for the platform
 export const getActivePaymentDetailsService = async () => {
   return prisma.companyPaymentDetail.findFirst({
     where: { isActive: true },

@@ -3,7 +3,7 @@ import { getBalanceService } from "../../services/wallet/wallet-account.service"
 import { validateCheckoutSchema } from "../../validators/wallet.validator";
 import { getOrCreateWalletService } from "../../services/wallet/wallet-account.service";
 
-// GET /api/v1/wallet/balance (CLIENT)
+// getWalletBalance: Retrieves the live available balance for the authenticated client's wallet
 export const getWalletBalance = async (req: Request, res: Response) => {
   try {
     const clientId = (req as any).user.id;
@@ -15,7 +15,7 @@ export const getWalletBalance = async (req: Request, res: Response) => {
   }
 };
 
-// POST /api/v1/wallet/validate-checkout (CLIENT)
+// validateCheckout: Pre-verification to ensure the client has sufficient funds before allowing an order placement
 export const validateCheckout = async (req: Request, res: Response) => {
   try {
     const validated = validateCheckoutSchema.safeParse(req.body);

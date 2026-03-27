@@ -1,7 +1,7 @@
 import prisma from "../../connect";
 import { getOrCreateWalletService } from "./wallet-account.service";
 
-// ── CLIENT: Get wallet transactions ──
+// getClientTransactionsService: Paginated retrieval of the authenticated client's financial transaction history
 export const getClientTransactionsService = async (params: {
   clientId: string;
   type?: string;
@@ -45,7 +45,7 @@ export const getClientTransactionsService = async (params: {
   };
 };
 
-// ── ADMIN: Get all transactions ──
+// getAdminTransactionsService: Comprehensive paginated audit trail of all transactions across the entire system
 export const getAdminTransactionsService = async (params: {
   clientId?: string;
   type?: string;
@@ -101,7 +101,7 @@ export const getAdminTransactionsService = async (params: {
   };
 };
 
-// ── Deduct wallet for order (ATOMIC) ──
+// deductForOrderService: High-integrity atomic transaction for deducting wallet funds to pay for an order
 export const deductForOrderService = async (orderId: string, clientId: string) => {
   return prisma.$transaction(async (tx) => {
     // 1. Fetch order

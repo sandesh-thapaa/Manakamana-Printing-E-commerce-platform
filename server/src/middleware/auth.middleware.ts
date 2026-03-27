@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import prisma from "../connect";
 import { AppError } from "../utils/apperror";
 
+// Protect middleware: Verifies the JWT token from the authorization header and attaches the user to the request
 export const protect = async (
   req: any,
   res: Response,
@@ -53,6 +54,7 @@ export const protect = async (
   }
 };
 
+// restrictTo middleware: Restricts access to specified roles (e.g., 'ADMIN')
 export const restrictTo = (...roles: string[]) => {
   return (req: any, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {

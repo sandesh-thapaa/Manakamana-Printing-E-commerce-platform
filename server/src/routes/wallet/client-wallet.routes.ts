@@ -28,28 +28,27 @@ const upload = multer({
 // All client wallet routes require CLIENT auth
 router.use(protect, restrictTo("CLIENT"));
 
-// Payment details
+// Payment details: View platform bank details to make a transfer
 router.get("/payment-details", getPaymentDetails);
 
-// Top-up requests
+// Top-up requests: Submit new proof of transfer and track personal requests
 router.post("/topup-requests", upload.single("proofFile"), submitTopupRequest);
 router.get("/topup-requests", getMyTopupRequests);
 router.get("/topup-requests/:requestId", getMyTopupRequestById);
 
-// Balance
+// Balance: Quick check of current available wallet funds
 router.get("/balance", getWalletBalance);
 
-// Transactions
+// Transactions: Personal history of wallet credits and debits
 router.get("/transactions", getWalletTransactions);
 
-// Validate checkout
+// Validate checkout: Verify if wallet has sufficient funds for a potential order
 router.post("/validate-checkout", validateCheckout);
 
-// Notifications
+// Notifications: Personal wallet-related push alerts
 router.get("/notifications", getClientNotifications);
 router.patch("/notifications/:notificationId/read", markClientNotificationRead);
 
-// Order wallet payment
-router.post("/orders/:orderId/confirm-wallet-payment", confirmWalletPayment);
+
 
 export default router;

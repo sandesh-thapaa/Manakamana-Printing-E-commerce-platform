@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { getNotificationsService, markNotificationAsReadService, getClientWalletSummaryService } from "../../services/wallet/wallet-notification.service";
 import { notificationQuerySchema } from "../../validators/wallet.validator";
 
-// ── CLIENT: Get notifications ──
+// getClientNotifications: Fetches unread and historical alerts for the currently logged-in client
 export const getClientNotifications = async (req: Request, res: Response) => {
   try {
     const validated = notificationQuerySchema.safeParse(req.query);
@@ -26,7 +26,7 @@ export const getClientNotifications = async (req: Request, res: Response) => {
   }
 };
 
-// ── CLIENT: Mark notification as read ──
+// markClientNotificationRead: Updates a specific client notification status to READ
 export const markClientNotificationRead = async (req: Request, res: Response) => {
   try {
     const notificationId = req.params.notificationId as string;
@@ -40,7 +40,7 @@ export const markClientNotificationRead = async (req: Request, res: Response) =>
   }
 };
 
-// ── ADMIN: Get notifications ──
+// getAdminNotifications: Fetches system alerts and pending task notifications for administrators
 export const getAdminNotifications = async (req: Request, res: Response) => {
   try {
     const validated = notificationQuerySchema.safeParse(req.query);
@@ -64,7 +64,7 @@ export const getAdminNotifications = async (req: Request, res: Response) => {
   }
 };
 
-// ── ADMIN: Mark notification as read ──
+// markAdminNotificationRead: Updates a specific administrative alert status to READ
 export const markAdminNotificationRead = async (req: Request, res: Response) => {
   try {
     const notificationId = req.params.notificationId as string;
@@ -78,7 +78,7 @@ export const markAdminNotificationRead = async (req: Request, res: Response) => 
   }
 };
 
-// ── ADMIN: Get client wallet summary ──
+// getAdminClientWalletSummary: Provides an admin with a quick overview of a client's total balance and transactions
 export const getAdminClientWalletSummary = async (req: Request, res: Response) => {
   try {
     const clientId = req.params.clientId as string;

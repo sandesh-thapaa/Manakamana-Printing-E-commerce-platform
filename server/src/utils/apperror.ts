@@ -1,3 +1,4 @@
+// AppError: Custom error class to streamline operational error handling with HTTP status codes
 export class AppError extends Error {
     public statusCode: number;
     public status: string;
