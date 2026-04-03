@@ -3,34 +3,40 @@ import { Service, Template, Order } from "@/types";
 export const SERVICES: Service[] = [
 
     {
-        id: "visiting-cards",
-        name: "Visiting Cards",
+        id: "card-holders",
+        name: "Card Holders",
         minimumQuantity: 100,
-        image: "/images/Modern Business Card 01.avif",
+        image: "/images/printing-services/card-holder.jpg",
     },
     {
         id: "pamphlets",
         name: "Pamphlets",
         minimumQuantity: 200,
-        image: "/images/Pamphlets.avif",
+        image: "/images/printing-services/pamplets.jpg",
+    },
+    {
+        id: "posters",
+        name: "Posters",
+        minimumQuantity: 200,
+        image: "/images/printing-services/poster.jpg",
     },
     {
         id: "letterheads",
         name: "Letterheads",
         minimumQuantity: 100,
-        image: "/images/Corporate Letterhead 01.avif",
+        image: "/images/printing-services/letter-head.jpg",
+    },
+    {
+        id: "bill-books",
+        name: "Bill Books",
+        minimumQuantity: 100,
+        image: "/images/printing-services/bill-books.jpg",
     },
     {
         id: "id-cards",
         name: "ID Cards",
-        minimumQuantity: 50,
-        image: "/images/Employee ID Card.avif",
-    },
-    {
-        id: "envelopes",
-        name: "Envelopes",
-        minimumQuantity: 100,
-        image: "/images/Standard Envelope.avif",
+        minimumQuantity: 1,
+        image: "/images/printing-services/id/id-1.webp",
     },
 
 ];

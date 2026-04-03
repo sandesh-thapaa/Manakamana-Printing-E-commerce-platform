@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
+// globalErrorHandler: Catch-all middleware to handle all errors and return a consistent JSON response
 export const globalErrorHandler = (
   err: any,
   req: Request,
@@ -10,8 +11,10 @@ export const globalErrorHandler = (
   err.status = err.status || 'error';
 
   if (err.statusCode === 500) {
-    console.error('ERROR 💥', err);
+    console.error('ERROR ', err);
   } else {
+     // Reduced logging (or no logging) for operational errors to avoid clutter/confusion
+     console.warn(`Error ${err.statusCode}: ${err.message}`);
   }
 
   res.status(err.statusCode).json({

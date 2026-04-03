@@ -9,11 +9,6 @@ generator client {
 
 // ENUMS
 
-enum Role {
-  ADMIN
-  CLIENT
-}
-
 enum RegistrationStatus {
   PENDING
   APPROVED
@@ -29,57 +24,94 @@ enum OrderStatus {
   ORDER_CANCELLED
 }
 
-enum DesignStatus {
-  PENDING
+enum DesignSubmissionStatus {
+  PENDING_REVIEW
   APPROVED
   REJECTED
 }
 
-// USER AUTH SYSTEM
+enum ApprovedDesignStatus {
+  ACTIVE
+  ARCHIVED
+}
 
-model User {
-  id       String  @id @default(uuid())
-  clientId String? @unique
+enum WalletTopupStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum WalletTxnType {
+  CREDIT
+  DEBIT
+}
+
+enum WalletTxnSource {
+  TOPUP
+  ORDER
+  REFUND
+  ADJUSTMENT
+}
+
+enum ProductFieldType {
+  TEXT
+  NUMBER
+  DROPDOWN
+  FILE
+}
+
+enum IdCardPrintingSide {
+  SINGLE
+  DOUBLE
+}
+
+enum IdCardOrientation {
+  LANDSCAPE
+  PORTRAIT
+}
+
+enum NotificationRecipientRole {
+  CLIENT
+  ADMIN
+}
+
+// ADMIN USERS
+
+model AdminUser {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
   password String
-  role     Role
+  role     String @default("ADMIN")
 
-  client Client?
+  reviewedSubmissions   DesignSubmission[]     @relation("ReviewedSubmissions")
+  approvedDesigns       ApprovedDesign[]       @relation("ApprovedDesigns")
+  archivedDesigns       ApprovedDesign[]       @relation("ArchivedDesigns")
+  companyPaymentDetails CompanyPaymentDetail[]
+  walletTopupReviews    WalletTopupRequest[]
 
-  registrationRequest RegistrationRequest?  @relation("UserRegistration")
-  reviewedRequests    RegistrationRequest[] @relation("ReviewerRegistration")
-  reviewedDesigns     Design[]              @relation("DesignReviewer")
-  systemLogs          SystemLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  @@map("users")
+  @@map("admin_users")
 }
 
 // REGISTRATION REQUEST (CLIENT ONBOARDING)
 
 model RegistrationRequest {
-  id            String  @id @default(uuid())
-  companyName   String
-  contactPerson String
-  email         String
-  phone         String
-  address       String?
-  message       String?
+  id               String  @id @default(uuid())
+  business_name    String
+  owner_name       String
+  email            String
+  phone_number     String  @unique
+  business_address String?
+  notes            String?
 
-  status RegistrationStatus @default(PENDING)
+  status           RegistrationStatus @default(PENDING)
+  rejection_reason String?
 
-  rejectionReason String?
-
-  reviewedById String?
-  reviewedBy   User?   @relation("ReviewerRegistration", fields: [reviewedById], references: [id])
-
-  userId String? @unique
-  user   User?   @relation("UserRegistration", fields: [userId], references: [id])
-
-  createdAt  DateTime  @default(now())
-  reviewedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@map("registration_requests")
@@ -88,19 +120,28 @@ model RegistrationRequest {
 // CLIENT PROFILE
 
 model Client {
-  id     String @id @default(uuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_code  String? @unique
+  phone_number String  @unique
+  password     String
 
-  companyName String
-  email       String
-  phone       String?
-  address     String?
+  business_name String
+  owner_name    String
+  email         String
+  address       String?
 
-  orders Order[]
+  status String @default("active")
+
+  orders              Order[]
+  designSubmissions   DesignSubmission[]
+  approvedDesigns     ApprovedDesign[]
+  notifications       Notification[]
+  walletAccount       WalletAccount?
+  walletTopupRequests WalletTopupRequest[]
+  walletTransactions  WalletTransaction[]
 
   createdAt DateTime @default(now())
-  Design    Design[]
+  updatedAt DateTime @updatedAt
 
   @@map("clients")
 }
@@ -108,110 +149,517 @@ model Client {
 // PRINTING SERVICES
 
 model PrintingService {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   name        String
   description String?
-  basePrice   Float
-  isActive    Boolean @default(true)
+  basePrice   Float    @default(0)
+  image_url   String?  @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
 
-  orders Order[]
-
-  createdAt DateTime @default(now())
+  products Product[]
 
   @@map("printing_services")
 }
 
 // TEMPLATE LIBRARY
 
+model TemplateCategory {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  templates Template[]
+
+  @@map("template_categories")
+}
+
 model Template {
-  id         String  @id @default(uuid())
-  name       String
-  category   String
-  fileUrl    String
-  previewUrl String?
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+
+  categoryId String
+  category   TemplateCategory @relation(fields: [categoryId], references: [id])
+
+  fileUrl  String
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
+
+  submissions DesignSubmission[]
 
   @@map("templates")
 }
 
-// CUSTOM DESIGN APPROVAL
+// PRODUCT CATALOG SYSTEM
 
-model Design {
-  id         String @id @default(uuid())
+model ProductCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  image_url   String?  @db.Text
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
+
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category_id     String?  @db.Uuid
+  service_id      String?
+  product_code    String   @unique @db.VarChar(20)
+  name            String   @db.VarChar(100)
+  description     String?  @db.Text
+  image_url       String?  @db.Text
+  base_price      Decimal  @default(0) @db.Decimal(10, 2)
+  discount_type   String?  @db.VarChar(20)
+  discount_value  Decimal  @default(0) @db.Decimal(10, 2)
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
+
+  category       ProductCategory?     @relation(fields: [category_id], references: [id])
+  service        PrintingService?     @relation(fields: [service_id], references: [id])
+  variants       ProductVariant[]
+  fields         ProductField[]
+  price_matrices ProductPriceMatrix[]
+  orders         Order[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id   String   @db.Uuid
+  variant_code String   @unique @db.VarChar(30)
+  variant_name String   @db.VarChar(150)
+  min_quantity Int      @default(1)
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+
+  product       Product          @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  option_groups OptionGroup[]
+  pricing       VariantPricing[]
+  orders        Order[]
+
+  @@map("product_variants")
+}
+
+model OptionGroup {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  variant_id    String   @db.Uuid
+  name          String   @db.VarChar(60)
+  label         String   @db.VarChar(100)
+  display_order Int      @default(0)
+  is_required   Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  variant ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  values  OptionValue[]
+
+  @@unique([variant_id, name])
+  @@map("option_groups")
+}
+
+model OptionValue {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  group_id      String   @db.Uuid
+  code          String   @db.VarChar(60)
+  label         String   @db.VarChar(150)
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  group OptionGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
+
+  @@unique([group_id, code])
+  @@map("option_values")
+}
+
+model VariantPricing {
+  id               String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  variant_id       String @db.Uuid
+  combination_key  String @db.VarChar(500)
+  selected_options Json
+
+  price          Decimal @db.Decimal(10, 2)
+  discount_type  String? @db.VarChar(20)
+  discount_value Decimal @default(0) @db.Decimal(10, 2)
+
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  variant ProductVariant @relation(fields: [variant_id], references: [id])
+
+  @@unique([variant_id, combination_key])
+  @@index([variant_id, is_active])
+  @@map("variant_pricing")
+}
+
+model ProductField {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id       String           @db.Uuid
+  field_key        String           @db.VarChar(100)
+  label            String           @db.VarChar(150)
+  type             ProductFieldType
+  is_required      Boolean          @default(true)
+  display_order    Int              @default(0)
+  placeholder      String?          @db.VarChar(255)
+  is_pricing_field Boolean          @default(false)
+  is_active        Boolean          @default(true)
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @default(now()) @updatedAt
+
+  product     Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  options     FieldOption[]
+  order_items OrderItem[]
+
+  @@unique([product_id, field_key])
+  @@index([product_id, is_active])
+  @@map("product_fields")
+}
+
+model FieldOption {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  field_id      String   @db.Uuid
+  value         String   @db.VarChar(100)
+  label         String   @db.VarChar(150)
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  field ProductField @relation(fields: [field_id], references: [id], onDelete: Cascade)
+
+  @@unique([field_id, value])
+  @@index([field_id, is_active])
+  @@map("field_options")
+}
+
+model ProductPriceMatrix {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id       String   @db.Uuid
+  combination_key  String   @db.VarChar(500)
+  selected_options Json
+  unit_price       Decimal  @db.Decimal(10, 2)
+  discount_type    String?  @db.VarChar(20)
+  discount_value   Decimal  @default(0) @db.Decimal(10, 2)
+  is_active        Boolean  @default(true)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_id, combination_key])
+  @@index([product_id, is_active])
+  @@map("product_price_matrices")
+}
+
+model IdCardProduct {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_code    String   @unique @db.VarChar(30)
+  name            String   @db.VarChar(150)
+  description     String?  @db.Text
+  image_url       String?  @db.Text
+  base_price      Decimal  @db.Decimal(10, 2)
+  discount_type   String?  @db.VarChar(20)
+  discount_value  Decimal  @default(0) @db.Decimal(10, 2)
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
+
+  orders IdCardOrderDetail[]
+
+  @@map("idcard_products")
+}
+
+// DESIGN SUBMISSION AND APPROVAL
+
+model DesignSubmission {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clientId String @db.Uuid
+  client   Client @relation(fields: [clientId], references: [id])
+
+  templateId String?
+  template   Template? @relation(fields: [templateId], references: [id])
+
+  title String?
+  notes String?
+
+  fileUrl  String
+  fileType String
+  fileSize Int
+
+  status          DesignSubmissionStatus @default(PENDING_REVIEW)
+  feedbackMessage String?
+
+  approvedDesignId String? @unique @db.Uuid
+
+  submittedAt DateTime @default(now())
+
+  reviewedBy_id String?
+  reviewedBy    AdminUser? @relation("ReviewedSubmissions", fields: [reviewedBy_id], references: [id])
+  reviewedAt    DateTime?
+
+  approvedDesign ApprovedDesign?
+
+  @@map("design_submissions")
+}
+
+model ApprovedDesign {
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   designCode String @unique
-  clientId   String
-  client     Client @relation(fields: [clientId], references: [id])
 
-  fileUrl    String
-  previewUrl String?
+  clientId String @db.Uuid
+  client   Client @relation(fields: [clientId], references: [id])
 
-  status DesignStatus @default(PENDING)
-  rejectionReason String?
-  reviewedById String?
-  reviewedBy   User?   @relation("DesignReviewer", fields: [reviewedById], references: [id])
+  submissionId String           @unique @db.Uuid
+  submission   DesignSubmission @relation(fields: [submissionId], references: [id])
 
-  createdAt  DateTime  @default(now())
-  reviewedAt DateTime?
+  approvedFileUrl String
+
+  status ApprovedDesignStatus @default(ACTIVE)
+
+  approvedBy_id String?
+  approvedBy    AdminUser? @relation("ApprovedDesigns", fields: [approvedBy_id], references: [id])
+  approvedAt    DateTime   @default(now())
+
+  archivedBy_id String?
+  archivedBy    AdminUser? @relation("ArchivedDesigns", fields: [archivedBy_id], references: [id])
+  archivedAt    DateTime?
+  archiveReason String?
 
   orders Order[]
 
-  @@map("designs")
+  @@map("approved_designs")
+}
+
+// NOTIFICATIONS AND AUDIT LOGS
+
+model Notification {
+  id            String                    @id @default(uuid())
+  recipientRole NotificationRecipientRole
+  recipientId   String
+  type          String
+  title         String
+  message       String
+  referenceId   String?
+  isRead        Boolean                   @default(false)
+  createdAt     DateTime                  @default(now())
+  readAt        DateTime?
+
+  clientId String? @db.Uuid
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  @@index([recipientRole, recipientId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }
 
 // ORDER SYSTEM
 
 model Order {
-  id        String @id @default(uuid())
-  orderName String
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String  @db.Uuid
+  product_id   String? @db.Uuid
+  variant_id   String? @db.Uuid
+  quantity     Int
+  unit_price   Decimal @db.Decimal(10, 2)
+  total_amount Decimal @db.Decimal(10, 2)
 
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id])
+  discount_type   String? @db.VarChar(20)
+  discount_value  Decimal @default(0) @db.Decimal(10, 2)
+  discount_amount Decimal @default(0) @db.Decimal(10, 2)
+  final_amount    Decimal @db.Decimal(10, 2)
 
-  serviceId String
-  service   PrintingService @relation(fields: [serviceId], references: [id])
+  status           OrderStatus @default(ORDER_PLACED)
+  payment_status   String      @default("PENDING") @db.VarChar(20)
+  notes            String?     @db.Text
+  pricing_snapshot Json?
 
-  quantity       Int
-  specifications Json?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
-  designId String?
-  design   Design? @relation(fields: [designId], references: [id])
+  client              Client               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  product             Product?             @relation(fields: [product_id], references: [id])
+  variant             ProductVariant?      @relation(fields: [variant_id], references: [id])
+  configurations      OrderConfiguration[]
+  items               OrderItem[]
+  idcard_detail       IdCardOrderDetail?
+  approvedDesign      ApprovedDesign?      @relation(fields: [designId], references: [id])
+  designId            String?              @db.Uuid
+  walletTransaction   WalletTransaction?   @relation("OrderToWalletTxn", fields: [walletTransactionId], references: [id])
+  walletTransactionId String?              @unique @db.Uuid
 
-  status OrderStatus @default(ORDER_PLACED)
+  @@map("orders")
+}
+
+model OrderConfiguration {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id       String   @db.Uuid
+  group_name     String   @db.VarChar(60)
+  group_label    String   @db.VarChar(100)
+  selected_code  String   @db.VarChar(60)
+  selected_label String   @db.VarChar(150)
+  created_at     DateTime @default(now())
+
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@map("order_configurations")
+}
+
+model OrderItem {
+  id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id             String           @db.Uuid
+  field_id             String           @db.Uuid
+  field_key_snapshot   String           @db.VarChar(100)
+  field_label_snapshot String           @db.VarChar(150)
+  field_type_snapshot  ProductFieldType
+  value                String           @db.Text
+  display_value        String?          @db.Text
+  created_at           DateTime         @default(now())
+
+  order Order        @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  field ProductField @relation(fields: [field_id], references: [id], onDelete: Restrict)
+
+  @@index([order_id])
+  @@index([field_id])
+  @@map("order_items")
+}
+
+model IdCardOrderDetail {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id          String             @unique @db.Uuid
+  idcard_product_id String             @db.Uuid
+  printing_side     IdCardPrintingSide
+  orientation       IdCardOrientation
+  strap_color       String?            @db.VarChar(80)
+  strap_text        String?            @db.VarChar(150)
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @default(now()) @updatedAt
+
+  order         Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  idcardProduct IdCardProduct @relation(fields: [idcard_product_id], references: [id], onDelete: Restrict)
+
+  @@index([idcard_product_id])
+  @@map("idcard_order_details")
+}
+
+// WALLET SYSTEM
+
+model CompanyPaymentDetail {
+  id            String  @id @default(uuid())
+  companyName   String
+  bankName      String
+  accountName   String
+  accountNumber String
+  branch        String?
+  paymentId     String?
+  qrImageUrl    String?
+  note          String?
+  isActive      Boolean @default(true)
+
+  createdById String?
+  createdBy   AdminUser? @relation(fields: [createdById], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([status])
-  @@map("orders")
+  @@index([isActive])
+  @@map("company_payment_details")
 }
 
-// ADMIN DASHBOARD METRICS (OPTIONAL FUTURE)
+model WalletAccount {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clientId         String  @unique @db.Uuid
+  currency         String  @default("NPR")
+  availableBalance Decimal @default(0.00) @db.Decimal(12, 2)
 
-model SystemLog {
-  id       String @id @default(uuid())
-  action   String
-  metadata Json?
+  client        Client               @relation(fields: [clientId], references: [id])
+  transactions  WalletTransaction[]
+  topupRequests WalletTopupRequest[]
 
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@map("wallet_accounts")
+}
+
+model WalletTopupRequest {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  walletId          String            @db.Uuid
+  clientId          String            @db.Uuid
+  submittedAmount   Decimal           @db.Decimal(12, 2)
+  approvedAmount    Decimal?          @db.Decimal(12, 2)
+  paymentMethod     String
+  transferReference String?
+  note              String?
+  proofFilePath     String
+  proofFileName     String?
+  proofMimeType     String?
+  proofFileSize     Int?
+  status            WalletTopupStatus @default(PENDING_REVIEW)
+
+  rejectionReason String?
+  rejectionCode   String?
+
+  reviewedById String?
+  reviewedAt   DateTime?
+
+  wallet     WalletAccount @relation(fields: [walletId], references: [id])
+  client     Client        @relation(fields: [clientId], references: [id])
+  reviewedBy AdminUser?    @relation(fields: [reviewedById], references: [id])
+
+  walletTransaction WalletTransaction?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([walletId])
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("wallet_topup_requests")
+}
+
+model WalletTransaction {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  walletId       String  @db.Uuid
+  clientId       String  @db.Uuid
+  topupRequestId String? @unique @db.Uuid
+
+  type     WalletTxnType
+  source   WalletTxnSource
+  sourceId String
+
+  amount        Decimal @db.Decimal(12, 2)
+  currency      String  @default("NPR")
+  balanceBefore Decimal @db.Decimal(12, 2)
+  balanceAfter  Decimal @db.Decimal(12, 2)
+  description   String?
+
+  wallet       WalletAccount       @relation(fields: [walletId], references: [id])
+  client       Client              @relation(fields: [clientId], references: [id])
+  topupRequest WalletTopupRequest? @relation(fields: [topupRequestId], references: [id])
+  order        Order?              @relation("OrderToWalletTxn")
 
   createdAt DateTime @default(now())
 
-  @@map("system_logs")
+  @@index([walletId])
+  @@index([clientId])
+  @@index([type])
+  @@index([source])
+  @@index([sourceId])
+  @@index([createdAt])
+  @@map("wallet_transactions")
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

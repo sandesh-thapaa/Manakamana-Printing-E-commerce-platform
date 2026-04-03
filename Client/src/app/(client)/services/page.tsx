@@ -21,7 +21,7 @@ export default function ServicesPage() {
                         {/* Preview image / icon area */}
                         <div className="h-[160px] relative overflow-hidden">
                             {service.image ? (
-                                <Image src={service.image} alt={service.name} fill className="object-cover" />
+                                <Image src={service.image} alt={service.name} fill className="" />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-[#f1f5f9] to-[#e2e8f0] flex items-center justify-center text-[3.5rem]">📄</div>
                             )}

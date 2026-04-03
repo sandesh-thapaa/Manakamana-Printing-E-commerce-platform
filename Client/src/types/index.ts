@@ -53,3 +53,23 @@ export interface DashboardStats {
   completedOrders: number;
   availableTemplates: number;
 }
+
+// ─── Order Form / Product Types ──────────────────────────────────────────────
+
+export type FieldDef =
+  | { type: "number"; id: string; label: string; min: number; icon: string; hint?: string }
+  | { type: "select"; id: string; label: string; options: { value: string; label: string }[]; icon: string; hint?: string }
+  | { type: "text"; id: string; label: string; icon: string; placeholder?: string; hint?: string };
+
+export type ProductDef = {
+  id: string;
+  categoryId: string;
+  name: string;
+  images: string[];
+  fields: FieldDef[];
+  calculatePrice: (state: Record<string, string>) => { applicableCost: number; discount: number };
+  getActiveImageIndex?: (state: Record<string, string>) => number;
+  emailExtraCharge: number;
+  freeDeliveryThreshold: number;
+  renderProductInfo: () => React.ReactNode;
+};
