@@ -110,8 +110,12 @@ export default function RegistrationRequestsPage() {
         variant: "success",
       });
       if (result.credentials) {
+        const creds = result.credentials;
         setCredentialsById((prev) => {
-          const next = { ...prev, [id]: result.credentials };
+          const next: Record<string, { client_id: string; password: string }> = {
+            ...prev,
+            [id]: creds,
+          };
           try {
             localStorage.setItem(
               "admin:registration-credentials",
