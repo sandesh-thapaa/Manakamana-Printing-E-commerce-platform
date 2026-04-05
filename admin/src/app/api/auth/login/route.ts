@@ -41,10 +41,25 @@ export async function POST(request: Request) {
         contentType,
         body: rawBody?.slice(0, 500),
       });
-      return NextResponse.json(
+      const errorResponse = NextResponse.json(
         { message: data?.message || "Authentication failed." },
         { status: apiResponse.status }
       );
+      errorResponse.cookies.set(AUTH_TOKEN_COOKIE, "", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 0,
+      });
+      errorResponse.cookies.set(AUTH_FLAG_COOKIE, "", {
+        httpOnly: false,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 0,
+      });
+      return errorResponse;
     }
 
     // On successful login, set the token in a secure cookie

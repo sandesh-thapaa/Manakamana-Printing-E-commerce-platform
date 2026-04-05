@@ -183,12 +183,17 @@ export default function RegistrationRequestsPage() {
     setIsViewOpen(true);
   };
 
-  const filteredRequests = requests.filter(
-    (req) =>
-      req.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      req.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      req.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const normalizedSearch = searchTerm.toLowerCase();
+  const filteredRequests = requests.filter((req) => {
+    const company = (req.companyName || "").toLowerCase();
+    const contact = (req.contactPerson || "").toLowerCase();
+    const email = (req.email || "").toLowerCase();
+    return (
+      company.includes(normalizedSearch) ||
+      contact.includes(normalizedSearch) ||
+      email.includes(normalizedSearch)
+    );
+  });
 
   const sortedRequests = [...filteredRequests].sort((a, b) => {
     const statusOrder: Record<string, number> = {
